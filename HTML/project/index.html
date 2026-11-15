@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniSpace - Đăng Nhập & Mạng Xã Hội</title>
+    <style>
+        :root {
+            --bg-color: #eef0f7;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --text-secondary: #6b7280;
+            --primary-color: #4f46e5;
+            --border-color: #dfe2ec;
+            --hover-bg: #eef0fb;
+        }
+
+        body.incognito {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --primary-color: #a78bfa;
+            --border-color: #334155;
+            --hover-bg: #283548;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (TO BỰ, THOÁNG) */
+        #authScreen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--bg-color);
+        }
+
+        .auth-card {
+            background-color: var(--card-bg);
+            padding: 50px 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(79,70,229,0.15);
+            width: 550px;
+            text-align: center;
+        }
+
+        .auth-card h2 {
+            color: var(--primary-color);
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .auth-card p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 10px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 16px;
+            outline: none;
+        }
+        .auth-input:focus { border-color: var(--primary-color); }
+
+        .auth-btn {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        .auth-btn:hover { opacity: 0.9; }
+        body.incognito .auth-btn { color: #0f172a; }
+
+        .otp-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .otp-display {
+            flex: 1;
+            font-size: 24px;
+            font-family: monospace;
+            background: var(--hover-bg);
+            padding: 12px;
+            border-radius: 8px;
+            color: var(--primary-color);
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-align: center;
+        }
+
+        .copy-btn {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .copy-btn:hover { opacity: 0.9; }
+
+        .switch-auth {
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        .switch-auth span {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        /* ỨNG DỤNG CHÍNH (Ẩn đi trước khi đăng nhập) */
+        #appScreen {
+            display: none;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background-color: var(--card-bg);
+            box-shadow: 0 1px 4px rgba(79,70,229,0.12);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 350px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            outline: none;
+        }
+        .search-box input:focus { border-color: var(--primary-color); }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #btnIncognito, .logout-btn {
+            background-color: #334155;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .logout-btn { background-color: #ef4444; }
+
+        body.incognito #btnIncognito {
+            background-color: var(--primary-color);
+            color: #0f172a;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(79,70,229,0.12);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+        .tab-btn:hover { background-color: var(--hover-bg); }
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        body.incognito .tab-btn.active { color: #0f172a; }
+
+        .create-box {
+            background-color: var(--card-bg);
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(79,70,229,0.12);
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 75px;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            resize: none;
+            font-size: 15px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .image-input-wrap {
+            margin-top: 8px;
+            display: none;
+        }
+
+        .image-input-wrap input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 13px;
+        }
+
+        .create-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tools {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .tool-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 8px;
+            border-radius: 5px;
+        }
+        .tool-btn:hover { background-color: var(--hover-bg); }
+
+        #btnPost {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 8px 22px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #btnPost:hover { opacity: 0.9; }
+        body.incognito #btnPost { color: #0f172a; }
+
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .post-card {
+            background-color: var(--card-bg);
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(79,70,229,0.12);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .author-name { font-weight: bold; font-size: 15px; }
+        .post-time { font-size: 12px; color: var(--text-secondary); }
+
+        .ma-bai-viet {
+            font-size: 12px;
+            background-color: var(--hover-bg);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .delete-btn:hover { color: #ef4444; }
+
+        .post-content {
+            font-size: 15px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 12px;
+        }
+
+        .post-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .post-actions {
+            display: flex;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            padding: 6px 0;
+            gap: 5px;
+        }
+
+        .action-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+        .action-btn:hover { background-color: var(--hover-bg); }
+        .action-btn.liked { color: #ef4444; }
+        .action-btn.saved { color: var(--primary-color); }
+
+        .comments-section {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .comment-item {
+            background-color: var(--bg-color);
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+        .comment-item strong { margin-right: 5px; color: var(--primary-color); }
+
+        .comment-input-box {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .comment-input-box input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-size: 13px;
+            outline: none;
+        }
+
+        .comment-input-box button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 0 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        body.incognito .comment-input-box button { color: #0f172a; }
+
+        /* ===== HIỆU ỨNG ĐỘNG ===== */
+        button{position:relative;overflow:hidden}
+        #authScreen,#appScreen{position:relative;z-index:1}
+        .bubbles{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+        .bubbles span{position:absolute;bottom:-120px;border-radius:50%;background:var(--primary-color);opacity:0;animation:floatUp linear infinite}
+        @keyframes floatUp{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:.13}100%{transform:translateY(-125vh) rotate(360deg);opacity:0}}
+        @keyframes popIn{from{opacity:0;transform:scale(.85) translateY(30px)}to{opacity:1;transform:none}}
+        @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(10px)}60%{transform:translateX(-8px)}80%{transform:translateX(6px)}}
+        @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+        @keyframes logoPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+        @keyframes slideDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+        @keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.96)}to{opacity:1;transform:none}}
+        @keyframes fresh{0%{opacity:0;transform:translateY(-30px) scale(.9);box-shadow:0 0 0 0 rgba(79,70,229,.6)}60%{opacity:1;transform:scale(1.02);box-shadow:0 0 0 14px rgba(79,70,229,0)}100%{transform:none}}
+        @keyframes out{to{opacity:0;transform:translateX(70px) scale(.9)}}
+        @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.4)}100%{transform:scale(1)}}
+        @keyframes fly{to{transform:translate(var(--dx),-130px) scale(1.5);opacity:0}}
+        @keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
+        @keyframes toastOut{to{opacity:0;transform:translateX(60px)}}
+        @keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+        @keyframes rip{to{transform:scale(4);opacity:0}}
+        @keyframes ping{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6)}100%{box-shadow:0 0 0 9px rgba(34,197,94,0)}}
+
+        .auth-card{animation:popIn .7s cubic-bezier(.2,.9,.3,1.2)}
+        .auth-card.shake{animation:shake .45s}
+        .auth-card h2{animation:bob 3s ease-in-out infinite}
+        .auth-input{transition:transform .2s,border-color .2s,box-shadow .2s}
+        .auth-input:focus{transform:scale(1.02);box-shadow:0 0 0 4px rgba(79,70,229,.18)}
+        .auth-btn,#btnPost,.copy-btn,.logout-btn,#btnIncognito{transition:transform .2s,box-shadow .2s,opacity .2s}
+        .auth-btn:hover,#btnPost:hover,.copy-btn:hover,.logout-btn:hover,#btnIncognito:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
+        .auth-btn:active,#btnPost:active{transform:scale(.96)}
+        #otpBox,#otpInput{animation:slideDown .4s}
+        .otp-display{animation:bob 2s ease-in-out infinite}
+        .logo{animation:logoPulse 3s ease-in-out infinite;cursor:default}
+        .search-box{transition:max-width .35s}
+        .search-box:focus-within{max-width:460px}
+        .tab-btn{transition:background-color .25s,transform .2s,color .25s}
+        .tab-btn:hover{transform:translateY(-2px)}
+        .create-box,.nav-tabs,.comment-item{transition:background-color .3s,box-shadow .3s}
+        .create-box:focus-within{box-shadow:0 6px 24px rgba(79,70,229,.22)}
+        .post-card{transition:transform .25s,box-shadow .25s,background-color .3s}
+        .post-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(79,70,229,.2)}
+        .post-card.enter{animation:cardIn .5s backwards}
+        .post-card.fresh{animation:fresh .8s backwards}
+        .post-card.removing{animation:out .35s forwards}
+        .post-image{transition:transform .4s}
+        .post-image:hover{transform:scale(1.02)}
+        .delete-btn{transition:transform .3s,color .2s}
+        .delete-btn:hover{transform:rotate(90deg)}
+        .action-btn{transition:background-color .2s,transform .15s}
+        .action-btn:hover{transform:translateY(-1px)}
+        .action-btn.pop{animation:pop .5s}
+        .avatar{position:relative;transition:transform .3s}
+        .avatar:hover{transform:rotate(-8deg) scale(1.1)}
+        .avatar.on::after{content:"";position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid var(--card-bg);animation:ping 2s infinite}
+        .comment-input-box input:focus{border-color:var(--primary-color)}
+        .heart-fly{position:fixed;pointer-events:none;z-index:9999;font-size:20px;animation:fly 1.1s ease-out forwards}
+        .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.45);transform:scale(0);animation:rip .6s linear;pointer-events:none}
+        .confetti{position:fixed;top:-16px;width:10px;height:14px;z-index:9999;pointer-events:none;animation:fall linear forwards}
+        #toasts{position:fixed;top:20px;right:20px;z-index:10000;display:flex;flex-direction:column;gap:10px}
+        .toast{background:var(--card-bg);color:var(--text-color);border-left:5px solid var(--primary-color);padding:12px 18px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.2);font-size:14px;max-width:320px;animation:toastIn .4s,toastOut .4s 3.2s forwards}
+        .toast.err{border-left-color:#ef4444}
+        .cap-chip{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:bold;color:var(--text-secondary);background:var(--hover-bg);padding:6px 12px;border-radius:20px;white-space:nowrap}
+        .cap-bar{width:60px;height:6px;border-radius:6px;background:var(--border-color);overflow:hidden}
+        .cap-bar i{display:block;height:100%;width:0;background:var(--primary-color);transition:width .9s ease}
+        .cap-auth{margin-top:20px;font-size:13px;color:var(--text-secondary)}
+        .cap-auth .cap-bar{width:100%;height:8px;margin-top:8px}
+        .full .cap-bar i{background:#ef4444}
+        .full{color:#ef4444}
+        #toTop{position:fixed;right:22px;bottom:22px;width:46px;height:46px;border-radius:50%;border:none;background:var(--primary-color);color:#fff;font-size:20px;cursor:pointer;box-shadow:0 6px 18px rgba(79,70,229,.4);opacity:0;transform:translateY(20px) scale(.8);pointer-events:none;transition:.3s;z-index:200}
+        #toTop.show{opacity:1;transform:none;pointer-events:auto}
+        #toTop:hover{transform:translateY(-4px)}
+        body.incognito #toTop{color:#0f172a}
+        @media(max-width:700px){.cap-chip .cap-bar{display:none}.auth-card{width:92vw;padding:36px 22px}}
+        @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+        /* ===== MỤC MỚI: GAME / SÁCH / TÂM SỰ ===== */
+        .nav-tabs{flex-wrap:wrap}.tab-btn{flex:1 1 30%}
+        .panel{display:none;animation:cardIn .4s}
+        .box{background:var(--card-bg);border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(79,70,229,.12)}
+        .box h3{margin:0 0 12px;color:var(--primary-color)}
+        .note{font-size:13px;color:var(--text-secondary);line-height:1.5;margin:0 0 12px}
+        .chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+        .chip{background:var(--hover-bg);color:var(--text-color);border:1.5px solid var(--border-color);padding:8px 14px;border-radius:20px;cursor:pointer;font-weight:600;font-size:13px;transition:.2s}
+        .chip:hover{transform:translateY(-2px);border-color:var(--primary-color)}
+        .chip.active{background:var(--primary-color);border-color:var(--primary-color);color:#fff}
+        body.incognito .chip.active{color:#0f172a}
+        .f-input{width:100%;padding:10px 12px;margin:6px 0;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-color);color:var(--text-color);font:inherit;font-size:14px;outline:none}
+        .f-input:focus{border-color:var(--primary-color)}
+        .ttt-status{text-align:center;font-weight:bold;margin:10px 0;min-height:22px}
+        .ttt-board{display:grid;grid-template-columns:repeat(3,86px);gap:8px;justify-content:center;margin:12px 0}
+        .cell{width:86px;height:86px;border:none;border-radius:12px;background:var(--hover-bg);font-size:44px;font-weight:800;cursor:pointer;transition:.2s;color:var(--primary-color)}
+        .cell:hover{transform:scale(1.06)}
+        .cell.o{color:#ef4444}
+        .cell.win{background:#10b981;color:#fff;animation:pop .6s}
+        .cell span{display:inline-block;animation:pop .35s}
+        .track{position:relative;margin:12px 0;border-radius:10px;overflow:hidden;background:var(--bg-color)}
+        .lane{position:relative;height:44px;border-bottom:1px dashed var(--border-color)}
+        .lane b{position:absolute;left:6px;top:11px;width:22px;height:22px;border-radius:50%;color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center}
+        .duck{position:absolute;top:6px;font-size:28px;transform:scaleX(-1);transition:left .06s linear}
+        .running .duck{animation:bob .35s infinite}
+        .finish{position:absolute;right:14px;top:0;bottom:0;border-right:4px dashed #ef4444}
+        .book-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border:1px solid var(--border-color);border-radius:10px;margin:8px 0;cursor:pointer;transition:.2s}
+        .book-item:hover{transform:translateX(4px);border-color:var(--primary-color);background:var(--hover-bg)}
+        .book-item small{color:var(--text-secondary)}
+        .mini-del{background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:15px}
+        .mini-del:hover{color:#ef4444}
+        .reader-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+        #readerText{line-height:1.85;font-size:17px;max-height:60vh;overflow-y:auto;padding-right:6px}
+        #readerText p{margin:0 0 14px;text-indent:1.4em}
+        .chat-box{height:340px;overflow-y:auto;background:var(--bg-color);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+        .msg{max-width:82%;padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.5;animation:slideDown .3s;white-space:pre-wrap;word-break:break-word}
+        .msg.bot{background:var(--card-bg);align-self:flex-start;border-bottom-left-radius:4px}
+        .msg.me{background:var(--primary-color);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+        body.incognito .msg.me{color:#0f172a}
+        .typing span{display:inline-block;width:7px;height:7px;margin:0 2px;border-radius:50%;background:var(--text-secondary);animation:bob .8s infinite}
+        .typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+        .chat-input{display:flex;gap:8px;margin-top:10px}
+        .chat-input button{background:var(--primary-color);color:#fff;border:none;padding:0 18px;border-radius:8px;font-weight:bold;cursor:pointer}
+        body.incognito .chat-input button{color:#0f172a}
+
+        /* ===== BẢN CẬP NHẬT: TAB NGANG, ZOOM 110%, GAME MỚI, BẠN BÈ ===== */
+        .container{max-width:780px}
+        .nav-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+        .nav-tabs::-webkit-scrollbar{display:none}
+        .tab-btn{flex:1 1 0;white-space:nowrap;padding:11px 8px;font-size:13px}
+        .badge{background:#ef4444;color:#fff;border-radius:10px;padding:1px 6px;font-size:11px;margin-left:4px}
+        @media(min-width:900px){body{zoom:1.1}#authScreen{height:calc(100vh / 1.1)}}
+        @keyframes duckbob{0%,100%{transform:scaleX(-1) translateY(0)}50%{transform:scaleX(-1) translateY(-5px)}}
+        .duck{left:36px}
+        .running .duck{animation:duckbob .35s infinite}
+        .frow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--border-color);border-radius:10px;margin:6px 0}
+        .frow small{color:var(--text-secondary);display:block}
+        .msg small{display:block;opacity:.6;font-size:10px;margin-top:2px}
+        .mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:340px;margin:12px auto}
+        .mcard{width:100%;aspect-ratio:1;border:2px solid transparent;border-radius:12px;background:var(--hover-bg);font-size:30px;cursor:pointer;transition:.2s}
+        .mcard.on{background:var(--card-bg);border-color:var(--primary-color);animation:pop .3s}
+        .mcard.ok{background:#10b981;border-color:#10b981}
+        .rps-btn{font-size:22px;padding:10px 20px}
+        .hole-grid{display:grid;grid-template-columns:repeat(3,90px);gap:10px;justify-content:center;margin:12px 0}
+        .hole{height:76px;border:none;border-radius:50%/40%;background:#8b5a2b;font-size:38px;cursor:pointer}
+        #snakeCv{display:block;margin:10px auto;border-radius:10px;max-width:100%;border:2px solid var(--border-color)}
+        /* Trang cá nhân */
+        .ho-so-bia{height:110px;border-radius:12px 12px 0 0;margin:-18px -18px 0;background:linear-gradient(135deg,var(--primary-color),#ec4899)}
+        .ho-so-dau{display:flex;align-items:flex-end;gap:16px;margin-top:-44px;flex-wrap:wrap}
+        .ho-so-anh{width:96px;height:96px;font-size:40px;border:4px solid var(--card-bg);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+        .ho-so-thong-ke{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap}
+        .ho-so-o{flex:1;min-width:90px;text-align:center;background:var(--hover-bg);border-radius:12px;padding:10px}
+        .ho-so-o b{display:block;font-size:20px;color:var(--primary-color)}
+        .ho-so-o span{font-size:12px;color:var(--text-secondary)}
+        .the-admin{background:#f59e0b;color:#fff;border-radius:10px;padding:2px 8px;font-size:12px;font-weight:bold;margin-left:8px;vertical-align:middle}
+        .dem-ky-tu{font-size:12px;color:var(--text-secondary);text-align:right;margin-bottom:8px}
+        /* Tab dàn đều toàn chiều ngang */
+        .nav-tabs{overflow:visible;gap:2px}
+        .tab-btn{flex:1 1 0;min-width:0;padding:11px 2px;font-size:13px;text-align:center}
+        @media(max-width:700px){.nav-tabs{overflow-x:auto}.tab-btn{flex:1 0 auto;padding:11px 12px}}
+        .duck{transform:scaleX(-1);font-size:24px;top:6px}
+        .hole{font-size:38px}
+        .mcard{font-size:20px;font-weight:bold}
+        .heart-fly{font-size:16px;font-weight:bold;color:#ef4444}
+    </style>
+</head>
+<body>
+    <div class="bubbles" id="bubbles"></div>
+    <div id="toasts"></div>
+
+    <!-- ================= MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ ================= -->
+    <div id="authScreen">
+        <div class="auth-card">
+            <h2 id="authTitle">Đăng Ký Tài Khoản</h2>
+            <p id="authDesc">Chào mừng đến với MiniSpace - Không gian kết nối, chia sẻ và tương tác trực tuyến thu nhỏ!</p>
+
+            <input type="text" id="usernameInput" class="auth-input" placeholder="Nhập tên tài khoản của bạn...">
+            <input type="password" id="passwordInput" class="auth-input" placeholder="Nhập mật khẩu của bạn...">
+
+            <div id="otpBox" style="display: none;">
+                <p style="font-size: 13px; margin: 5px 0; text-align: left; color: var(--text-secondary);">Mã OTP 8 số xác thực đã được gửi:</p>
+                <div class="otp-container">
+                    <div class="otp-display" id="generatedOtpText">--------</div>
+                    <button class="copy-btn" onclick="saoChepOtp()">Copy Mã</button>
+                </div>
+            </div>
+
+            <input type="text" id="otpInput" class="auth-input" placeholder="Nhập hoặc dán mã 8 số OTP..." style="display: none;">
+
+            <button class="auth-btn" id="authSubmitBtn" onclick="xuLyDangKyHoacDangNhap()">Đăng Ký</button>
+
+            <div class="cap-auth" id="capAuth"><div id="capTextAuth"></div><div class="cap-bar"><i id="capFillAuth"></i></div></div>
+
+            <div class="switch-auth" id="switchAuthText" onclick="doiCheDoAuth()">
+                Đã có tài khoản? <span>Đăng nhập ngay</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= MÀN HÌNH ỨNG DỤNG CHÍNH ================= -->
+    <div id="appScreen">
+        <header>
+            <h1 class="logo">MiniSpace</h1>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Tìm kiếm bài viết hoặc mã..." onkeyup="veBaiDang()">
+            </div>
+            <div class="header-actions">
+                <button id="btnIncognito" onclick="batTatAnDanh()">Tab Ẩn Danh</button>
+                <button class="logout-btn" onclick="dangXuat()">Đăng xuất</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <nav class="nav-tabs">
+                <button class="tab-btn active" onclick="chuyenMuc('all', this)">Bảng tin</button>
+                <button class="tab-btn" onclick="chuyenMuc('anonymous', this)">Ẩn danh</button>
+                <button class="tab-btn" onclick="chuyenMuc('saved', this)">Đã lưu</button>
+                <button class="tab-btn" onclick="chuyenMuc('games', this)">Trò chơi</button>
+                <button class="tab-btn" onclick="chuyenMuc('books', this)">Đọc sách</button>
+                <button class="tab-btn" onclick="chuyenMuc('chat', this)">Tâm sự</button>
+                <button class="tab-btn" id="tabDm" onclick="chuyenMuc('dm', this)">Nhắn tin</button>
+                <button class="tab-btn" id="tabGlobal" onclick="chuyenMuc('global', this)">Toàn cầu</button>
+                <button class="tab-btn" id="tabMe" onclick="chuyenMuc('me', this)">Cá nhân</button>
+            </nav>
+
+            <section class="create-box">
+                <textarea id="postInput" placeholder="Bạn đang nghĩ gì thế? Chia sẻ ngay..."></textarea>
+
+                <div class="image-input-wrap" id="imageInputWrap">
+                    <input type="text" id="imageUrlInput" placeholder="Dán đường link (URL) hình ảnh vào đây...">
+                </div>
+
+                <div class="create-footer">
+                    <div class="tools">
+                        <button class="tool-btn" onclick="batTatONhapAnh()">Thêm ảnh</button>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="anonCheck"> Ẩn danh
+                        </label>
+                    </div>
+                    <button id="btnPost" onclick="dangBai()">Đăng bài</button>
+                </div>
+            </section>
+
+            <!-- ===== TRÒ CHƠI ===== -->
+            <section class="panel" id="panel-games">
+                <div class="box">
+                    <h3>Phòng trò chơi</h3>
+                    <div class="chips" id="gameMenu">
+                        <button class="chip active" onclick="hienTroChoi('ttt', this)">❌⭕ Cờ O X</button>
+                        <button class="chip" onclick="hienTroChoi('duck', this)">🦆 Đua vịt</button>
+                        <button class="chip" onclick="hienTroChoi('mem', this)">🃏 Lật thẻ</button>
+                        <button class="chip" onclick="hienTroChoi('rps', this)">✊ Kéo búa bao</button>
+                        <button class="chip" onclick="hienTroChoi('guess', this)">🔢 Đoán số</button>
+                        <button class="chip" onclick="hienTroChoi('mole', this)">🔨 Đập chuột</button>
+                        <button class="chip" onclick="hienTroChoi('snake', this)">🐍 Rắn săn mồi</button>
+                    </div>
+                </div>
+                <div class="box" id="game-ttt">
+                    <h3>Cờ O X</h3>
+                    <select id="tttMode" class="f-input" onchange="oxBatDau()">
+                        <option value="ai">Chơi với máy</option>
+                        <option value="local">2 người (cùng một máy)</option>
+                        <option value="online">Chơi với bạn bè qua phòng</option>
+                    </select>
+                    <div id="tttRoomRow" style="display:none;">
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"><button class="chip active" onclick="oxTaoPhong()">Tạo phòng mới</button><input id="tttRoom" class="f-input" style="flex:1;min-width:150px;margin:0" placeholder="Dán mã phòng của bạn bè..."><button class="chip" onclick="oxVaoPhong()">Vào phòng</button></div><div id="tttCodeBox" class="note" style="display:none;margin-top:8px;"></div>
+                        <p class="note">Bấm "Tạo phòng mới" để nhận mã rồi gửi cho bạn bè. Bạn bè phải dán đúng mã vào ô rồi bấm "Vào phòng". (Hiện chạy giữa các tab cùng trình duyệt; muốn chơi qua internet thật cần có máy chủ.)</p>
+                    </div>
+                    <div class="ttt-status" id="tttStatus"></div>
+                    <div class="ttt-board" id="tttBoard"></div>
+                    <div style="text-align:center"><button class="chip" onclick="oxChoiLai()">Chơi lại</button></div>
+                </div>
+                <div class="box" id="game-duck" style="display:none;">
+                    <h3>Đua vịt</h3>
+                    <p class="note">Chọn chú vịt bạn tin sẽ về đích đầu tiên rồi bấm bắt đầu!</p>
+                    <div class="chips" id="duckPick"></div>
+                    <div class="track" id="duckTrack"></div>
+                    <div class="ttt-status" id="duckResult">Hãy chọn một chú vịt!</div>
+                    <div style="text-align:center"><button class="chip active" onclick="vitBatDau()">▶ Bắt đầu đua</button></div>
+                    <p class="note" id="duckStat" style="text-align:center;margin:10px 0 0;"></p>
+                </div>
+                <div class="box" id="game-mem" style="display:none;"><h3>Lật thẻ ghi nhớ</h3><p class="note">Tìm đủ 6 cặp giống nhau với ít lượt nhất!</p><div class="ttt-status" id="memStatus"></div><div class="mem-grid" id="memGrid"></div><div style="text-align:center"><button class="chip active" onclick="theBatDau()">Chơi mới</button></div></div>
+                <div class="box" id="game-rps" style="display:none;"><h3>Kéo búa bao</h3><div class="ttt-status" id="rpsRes">Chọn một nước đi!</div><div class="chips" style="justify-content:center"><button class="chip rps-btn" onclick="keoBuaBaoChoi('bua')">Búa</button><button class="chip rps-btn" onclick="keoBuaBaoChoi('bao')">Bao</button><button class="chip rps-btn" onclick="keoBuaBaoChoi('keo')">Kéo</button></div><p class="note" id="rpsStat" style="text-align:center"></p></div>
+                <div class="box" id="game-guess" style="display:none;"><h3>Đoán số</h3><p class="note" id="guessMsg"></p><div style="display:flex;gap:8px;"><input id="guessInput" type="number" min="1" max="100" class="f-input" style="margin:0" placeholder="Nhập số từ 1 đến 100" onkeypress="if(event.key==='Enter') doanSoThu()"><button class="chip active" onclick="doanSoThu()">Đoán</button></div><div style="text-align:center;margin-top:10px"><button class="chip" onclick="doanSoMoi()">Ván mới</button></div></div>
+                <div class="box" id="game-mole" style="display:none;"><h3>Đập chuột chũi</h3><p class="note">Bấm vào chú chuột trước khi nó chui xuống! Bạn có 20 giây.</p><div class="ttt-status" id="moleStat">Sẵn sàng?</div><div class="hole-grid" id="moleGrid"></div><div style="text-align:center"><button class="chip active" onclick="chuotBatDau()">▶ Bắt đầu</button></div></div>
+                <div class="box" id="game-snake" style="display:none;"><h3>Rắn săn mồi</h3><p class="note">Dùng phím mũi tên hoặc các nút bên dưới để điều khiển.</p><div class="ttt-status" id="snakeStat">Bấm bắt đầu!</div><canvas id="snakeCv" width="320" height="320"></canvas><div class="chips" style="justify-content:center"><button class="chip" onclick="ranDoiHuong(0,-1)">⬆</button><button class="chip" onclick="ranDoiHuong(-1,0)">⬅</button><button class="chip" onclick="ranDoiHuong(0,1)">⬇</button><button class="chip" onclick="ranDoiHuong(1,0)">➡</button></div><div style="text-align:center"><button class="chip active" onclick="ranBatDau()">▶ Bắt đầu</button></div></div>
+            </section>
+
+            <!-- ===== ĐỌC SÁCH ===== -->
+            <section class="panel" id="panel-books">
+                <div class="box" id="bookList">
+                    <h3>Thư viện sách</h3>
+                    <div id="bookItems"></div>
+                    <button class="chip" id="nutThemSach" onclick="batTatFormSach()">Thêm sách mới</button>
+                    <div id="bookForm" style="display:none;margin-top:10px;">
+                        <input id="bookTitle" class="f-input" placeholder="Tên sách...">
+                        <input id="bookAuthor" class="f-input" placeholder="Tác giả...">
+                        <textarea id="bookContent" class="f-input" style="height:180px;resize:vertical;" placeholder="Dán nội dung sách vào đây (xuống dòng để chia đoạn)..."></textarea>
+                        <button class="chip active" onclick="luuSach()">Lưu sách</button>
+                    </div>
+                </div>
+                <div class="box" id="bookReader" style="display:none;">
+                    <div class="reader-bar">
+                        <button class="chip" onclick="dongSach()">⬅ Quay lại</button>
+                        <button class="chip" onclick="doiCoChuSach(-2)">A−</button>
+                        <button class="chip" onclick="doiCoChuSach(2)">A+</button>
+                    </div>
+                    <h3 id="readerTitle"></h3>
+                    <p class="note" id="readerMeta"></p>
+                    <div id="readerText"></div>
+                </div>
+            </section>
+
+            <!-- ===== TÂM SỰ ===== -->
+            <section class="panel" id="panel-chat">
+                <div class="box">
+                    <h3>Góc tâm sự cùng Mây </h3>
+                    <p class="note">Mây là một chatbot nhỏ chỉ để lắng nghe và trò chuyện, không phải người thật hay chuyên gia. Tin nhắn chỉ lưu trên máy của bạn.</p>
+                    <div class="chat-box" id="chatBox"></div>
+                    <div class="chips">
+                        <button class="chip" onclick="guiTamSu('Mình đang buồn')">Mình buồn</button>
+                        <button class="chip" onclick="guiTamSu('Mình mệt quá')">Mình mệt</button>
+                        <button class="chip" onclick="guiTamSu('Mình đang lo lắng')">Mình lo</button>
+                        <button class="chip" onclick="guiTamSu('Hôm nay mình vui lắm')">Mình vui</button>
+                    </div>
+                    <div class="chat-input">
+                        <input id="chatInput" class="f-input" style="margin:0" placeholder="Bạn muốn kể gì nào..." onkeypress="if(event.key==='Enter') guiTamSu()">
+                        <button onclick="guiTamSu()">Gửi</button>
+                    </div>
+                    <div style="text-align:right;margin-top:8px;"><button class="chip" onclick="xoaTamSu()">Xóa cuộc trò chuyện</button></div>
+                </div>
+            </section>
+
+            <!-- ===== CÁ NHÂN ===== -->
+            <section class="panel" id="panel-me">
+                <div class="box">
+                    <div class="ho-so-bia"></div>
+                    <div class="ho-so-dau">
+                        <div class="avatar ho-so-anh" id="meAvatar"></div>
+                        <div><h3 id="meName" style="margin:0;font-size:24px"></h3><div class="note" id="meStat" style="margin:4px 0 0"></div></div>
+                    </div>
+                    <div class="ho-so-thong-ke" id="meThongKe"></div>
+                    <textarea id="meBio" class="f-input" maxlength="150" style="height:70px;resize:none" placeholder="Giới thiệu bản thân (tối đa 150 ký tự)..." oninput="demKyTuBio()"></textarea>
+                    <div class="dem-ky-tu" id="meDemKyTu"></div>
+                    <button class="chip active" onclick="luuGioiThieu()">Lưu giới thiệu</button>
+                </div>
+                <div class="box"><h3>Lời mời kết bạn</h3><div id="meReqs"></div></div>
+                <div class="box"><h3>Bạn bè</h3><div id="meFriends"></div></div>
+                <div class="box"><h3>Kết bạn</h3><input id="friendSearch" class="f-input" placeholder="Tìm tên thành viên..." onkeyup="veNguoiDung()"><div id="mePeople"></div></div>
+            </section>
+
+            <!-- ===== NHẮN TOÀN CẦU ===== -->
+            <section class="panel" id="panel-global">
+                <div class="box">
+                    <h3>Nhắn toàn cầu</h3>
+                    <p class="note">Mọi thành viên đều đọc được tin nhắn ở đây. Hãy nhắn lịch sự nhé! (Tin nhắn lưu trên trình duyệt này.)</p>
+                    <div class="chat-box" id="toanCauHop"></div>
+                    <div class="chat-input">
+                        <input id="toanCauO" class="f-input" style="margin:0" maxlength="300" placeholder="Nhắn công khai cho mọi người..." onkeypress="if(event.key==='Enter') guiToanCau()">
+                        <button onclick="guiToanCau()">Gửi</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== NHẮN TIN ===== -->
+            <section class="panel" id="panel-dm">
+                <div class="box">
+                    <h3>Nhắn tin với bạn bè</h3>
+                    <div class="chips" id="dmFriends"></div>
+                    <p class="note" id="dmEmpty"></p>
+                    <div id="dmArea" style="display:none;">
+                        <p class="note" id="dmWithTxt"></p>
+                        <div class="chat-box" id="dmBox"></div>
+                        <div class="chat-input">
+                            <input id="dmInput" class="f-input" style="margin:0" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') guiTinNhan()">
+                            <button onclick="guiTinNhan()">Gửi</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <main class="feed" id="newsFeed"></main>
+        </div>
+    </div>
+
+
+    <button id="toTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Lên đầu trang">⬆</button>
+
+    <!-- ================= JAVASCRIPT CƠ BẢN ================= -->
+    <script>
+        var laTrangDangKy = true;
+        var maOtpTamThoi = "";
+        var tenNguoiDungHienTai = "";
+
+        // Tài khoản quản trị viên (chỉ admin được xóa bài đăng và thêm/xóa sách)
+        var TEN_ADMIN = "Admin_MiniSpace";
+        var MAT_KHAU_ADMIN = "MiniSpace_that_tuyet";
+        function laAdmin() { return tenNguoiDungHienTai === TEN_ADMIN; }
+
+        // Tạo sẵn tài khoản admin trong danh sách thành viên
+        var dsUserSeed = JSON.parse(localStorage.getItem('minispace_users') || "{}");
+        dsUserSeed[TEN_ADMIN] = MAT_KHAU_ADMIN;
+        localStorage.setItem('minispace_users', JSON.stringify(dsUserSeed));
+
+        // Kiểm tra xem trước đó đã lưu trạng thái đăng nhập trong localStorage chưa
+        var nguoiDungDaLuu = localStorage.getItem('minispace_current_user');
+        if (nguoiDungDaLuu !== null) {
+            tenNguoiDungHienTai = nguoiDungDaLuu;
+            document.getElementById("authScreen").style.display = "none";
+            document.getElementById("appScreen").style.display = "block";
+        }
+
+        var danhSachBai = [
+            {
+                id: 1,
+                maDocNhat: "48291037",
+                author: "Quản trị viên",
+                content: "Chào mừng đến với MiniSpace - Nơi bạn có thể tự do chia sẻ khoảnh khắc, đăng bài viết ẩn danh, thả tim và lưu giữ những kỷ niệm tuyệt vời cùng bạn bè!",
+                image: "",
+                time: "Vừa xong",
+                isAnonymous: false,
+                likes: 5,
+                isLiked: false,
+                isSaved: false,
+                comments: [
+                    { user: "Người dùng ẩn danh", text: "Hệ thống bảo mật tài khoản chuẩn quá!" }
+                ]
+            }
+        ];
+
+        var mucHienTai = 'all';
+        var TOI_DA_THANH_VIEN = 1000000, chayHieuUng = true, idBaiMoi = null;
+
+        // 1. HÀM TẠO MÃ 8 SỐ KHÔNG TRÙNG LẶP TRONG CÙNG MỘT MÃ
+        function taoMa8So() {
+            var khoSo = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            var maCode = "";
+
+            for (var i = 0; i < 8; i++) {
+                var viTri = Math.floor(Math.random() * khoSo.length);
+                maCode += khoSo[viTri];
+                khoSo.splice(viTri, 1);
+            }
+            return maCode;
+        }
+
+        // 2. Nút Copy mã OTP
+        function saoChepOtp() {
+            var maOtp = document.getElementById("generatedOtpText").innerText;
+            navigator.clipboard.writeText(maOtp).then(function() {
+                alert("Đã sao chép mã OTP: " + maOtp);
+            });
+        }
+
+        // 3. Chuyển qua lại giữa Đăng ký và Đăng nhập
+        function doiCheDoAuth() {
+            laTrangDangKy = !laTrangDangKy;
+            var title = document.getElementById("authTitle");
+            var desc = document.getElementById("authDesc");
+            var submitBtn = document.getElementById("authSubmitBtn");
+            var switchText = document.getElementById("switchAuthText");
+            var otpBox = document.getElementById("otpBox");
+            var otpInput = document.getElementById("otpInput");
+
+            // Reset ẩn khung OTP khi chuyển chế độ
+            otpBox.style.display = "none";
+            otpInput.style.display = "none";
+            otpInput.value = "";
+
+            if (laTrangDangKy) {
+                title.innerText = "Đăng Ký Tài Khoản";
+                desc.innerText = "Chào mừng đến với MiniSpace - Không gian kết nối, chia sẻ và tương tác trực tuyến thu nhỏ!";
+                submitBtn.innerText = "Đăng Ký";
+                switchText.innerHTML = "Đã có tài khoản? <span>Đăng nhập ngay</span>";
+            } else {
+                title.innerText = "Đăng Nhập Tài Khoản";
+                desc.innerText = "Nhập đúng tên và mật khẩu đã đăng ký để hệ thống gửi mã OTP.";
+                submitBtn.innerText = "Tiếp Tục";
+                switchText.innerHTML = "Chưa có tài khoản? <span>Đăng ký ngay</span>";
+            }
+        }
+
+        // 4. Xử lý Đăng ký / Đăng nhập
+        function xuLyDangKyHoacDangNhap() {
+            var username = document.getElementById("usernameInput").value.trim();
+            var password = document.getElementById("passwordInput").value.trim();
+            var otpBox = document.getElementById("otpBox");
+            var otpInput = document.getElementById("otpInput");
+
+            if (username === "" || password === "") {
+                alert("Vui lòng nhập đầy đủ tên tài khoản và mật khẩu!");
+                return;
+            }
+
+            if (laTrangDangKy) {
+                // --- QUY TRÌNH ĐĂNG KÝ ---
+                var dsUserCu = JSON.parse(localStorage.getItem('minispace_users') || "{}");
+
+                if (dsUserCu[username]) {
+                    alert("Tên tài khoản này đã tồn tại! Vui lòng chọn tên khác hoặc bấm sang Đăng nhập.");
+                    return;
+                }
+
+                if (Object.keys(dsUserCu).length >= TOI_DA_THANH_VIEN) {
+                    alert("Rất tiếc, MiniSpace đã đủ " + TOI_DA_THANH_VIEN + " thành viên, không thể đăng ký thêm!");
+                    return;
+                }
+
+                // Nếu chưa hiện khung OTP ở bước Đăng ký -> Bấm để nhận OTP đăng ký
+                if (otpBox.style.display === "none") {
+                    maOtpTamThoi = taoMa8So();
+                    otpBox.style.display = "block";
+                    otpInput.style.display = "block";
+                    document.getElementById("generatedOtpText").innerText = maOtpTamThoi;
+                    document.getElementById("authSubmitBtn").innerText = "Xác Nhận Đăng Ký";
+                    alert("Mã OTP xác nhận đăng ký đã tạo! Hãy copy mã để hoàn tất.");
+                } else {
+                    // Bước kiểm tra OTP đăng ký
+                    var userOtp = otpInput.value.trim();
+                    if (userOtp !== maOtpTamThoi) {
+                        alert("Mã 8 số xác thực không chính xác!");
+                        return;
+                    }
+
+                    // Lưu tài khoản mới vào danh sách hệ thống
+                    dsUserCu[username] = password;
+                    localStorage.setItem('minispace_users', JSON.stringify(dsUserCu));
+
+                    alert("Đăng ký thành công! Hệ thống đã lưu tài khoản của bạn.");
+
+                    // Tự động chuyển qua giao diện Đăng nhập hoặc vào thẳng app luôn
+                    tenNguoiDungHienTai = username;
+                    localStorage.setItem('minispace_current_user', username);
+
+                    document.getElementById("authScreen").style.display = "none";
+                    document.getElementById("appScreen").style.display = "block";
+                    chayHieuUng = true;
+                    veBaiDang();
+                    chaoMung();
+                }
+
+            } else {
+                // --- QUY TRÌNH ĐĂNG NHẬP ---
+                var dsUserCu = JSON.parse(localStorage.getItem('minispace_users') || "{}");
+
+                // Kiểm tra xem tên đăng nhập có tồn tại không
+                if (!dsUserCu[username]) {
+                    alert("Tài khoản này chưa được đăng ký trong hệ thống!");
+                    return;
+                }
+
+                // Kiểm tra xem mật khẩu có khớp không
+                if (dsUserCu[username] !== password) {
+                    alert("Mật khẩu không chính xác! Vui lòng kiểm tra lại.");
+                    return;
+                }
+
+                // Nếu đúng tên và pass -> Nếu chưa hiện khung OTP thì hiển thị OTP
+                if (otpBox.style.display === "none") {
+                    maOtpTamThoi = taoMa8So();
+                    otpBox.style.display = "block";
+                    otpInput.style.display = "block";
+                    document.getElementById("generatedOtpText").innerText = maOtpTamThoi;
+                    document.getElementById("authSubmitBtn").innerText = "Xác Thực Đăng Nhập";
+                    alert("Tên và mật khẩu chính xác! Mã OTP 8 số đã gửi về, hãy copy mã để đăng nhập.");
+                } else {
+                    // Bước xác thực OTP cuối cùng để vào ứng dụng
+                    var userOtp = otpInput.value.trim();
+                    if (userOtp !== maOtpTamThoi) {
+                        alert("Mã 8 số xác thực không chính xác!");
+                        return;
+                    }
+
+                    tenNguoiDungHienTai = username;
+                    localStorage.setItem('minispace_current_user', username);
+
+                    document.getElementById("authScreen").style.display = "none";
+                    document.getElementById("appScreen").style.display = "block";
+                    chayHieuUng = true;
+                    veBaiDang();
+                    chaoMung();
+                }
+            }
+        }
+
+        // 5. Đăng xuất
+        function dangXuat() {
+            localStorage.removeItem('minispace_current_user');
+            capNhatSoThanhVien();
+            document.getElementById("appScreen").style.display = "none";
+            document.getElementById("authScreen").style.display = "flex";
+            document.getElementById("usernameInput").value = "";
+            document.getElementById("passwordInput").value = "";
+            document.getElementById("otpInput").value = "";
+            document.getElementById("otpBox").style.display = "none";
+            document.getElementById("otpInput").style.display = "none";
+            laTrangDangKy = true;
+            document.getElementById("authTitle").innerText = "Đăng Ký Tài Khoản";
+            document.getElementById("authDesc").innerText = "Chào mừng đến với MiniSpace - Không gian kết nối, chia sẻ và tương tác trực tuyến thu nhỏ!";
+            document.getElementById("authSubmitBtn").innerText = "Đăng Ký";
+            document.getElementById("switchAuthText").innerHTML = "Đã có tài khoản? <span>Đăng nhập ngay</span>";
+        }
+
+        // --- CÁC HÀM XỬ LÝ MẠNG XÃ HỘI ---
+        function batTatONhapAnh() {
+            var wrap = document.getElementById('imageInputWrap');
+            wrap.style.display = (wrap.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function chuyenMuc(tabName, btnElement) {
+            mucHienTai = tabName;
+            chayHieuUng = true;
+            var allButtons = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < allButtons.length; i++) {
+                allButtons[i].classList.remove('active');
+            }
+            btnElement.classList.add('active');
+            veBaiDang();
+        }
+
+        function batTatAnDanh() {
+            document.body.classList.toggle('incognito');
+            var isIncognito = document.body.classList.contains('incognito');
+            var btn = document.getElementById('btnIncognito');
+            var anonCheck = document.getElementById('anonCheck');
+
+            if (isIncognito) {
+                btn.textContent = "Thoát Ẩn Danh";
+                anonCheck.checked = true;
+                anonCheck.disabled = true;
+            } else {
+                btn.textContent = "Tab Ẩn Danh";
+                anonCheck.checked = false;
+                anonCheck.disabled = false;
+            }
+        }
+
+        function dangBai() {
+            var contentInput = document.getElementById('postInput');
+            var imageInput = document.getElementById('imageUrlInput');
+            var anonCheck = document.getElementById('anonCheck');
+
+            var content = contentInput.value.trim();
+            var image = imageInput.value.trim();
+            var isIncognito = document.body.classList.contains('incognito');
+            var isAnon = anonCheck.checked || isIncognito;
+
+            if (content === "" && image === "") {
+                alert("Vui lòng nhập nội dung hoặc thêm hình ảnh!");
+                return;
+            }
+
+            var authorName = isAnon ? "Người dùng ẩn danh" : tenNguoiDungHienTai;
+            var maMoi = taoMa8So();
+
+            var newPost = {
+                id: Date.now(),
+                maDocNhat: maMoi,
+                author: authorName,
+                content: content,
+                image: image,
+                time: "Hôm nay",
+                isAnonymous: isAnon,
+                likes: 0,
+                isLiked: false,
+                isSaved: false,
+                comments: []
+            };
+
+            danhSachBai.unshift(newPost);
+            idBaiMoi = newPost.id;
+            contentInput.value = '';
+            imageInput.value = '';
+            document.getElementById('imageInputWrap').style.display = 'none';
+            if (!isIncognito) anonCheck.checked = false;
+
+            veBaiDang();
+        }
+
+        function batTatThich(id) {
+            for (var i = 0; i < danhSachBai.length; i++) {
+                if (danhSachBai[i].id === id) {
+                    if (danhSachBai[i].isLiked) {
+                        danhSachBai[i].isLiked = false;
+                        danhSachBai[i].likes--;
+                    } else {
+                        danhSachBai[i].isLiked = true;
+                        danhSachBai[i].likes++;
+                    }
+                    break;
+                }
+            }
+            veBaiDang();
+        }
+
+        function batTatLuu(id) {
+            for (var i = 0; i < danhSachBai.length; i++) {
+                if (danhSachBai[i].id === id) {
+                    danhSachBai[i].isSaved = !danhSachBai[i].isSaved;
+                    break;
+                }
+            }
+            veBaiDang();
+        }
+
+        function xoaBaiDang(id) {
+            if (!laAdmin()) { hienThongBao("Chỉ quản trị viên mới được xóa bài đăng!", true); return; }
+            if (confirm("Bạn có chắc muốn xóa bài viết này?")) {
+                var newPosts = [];
+                for (var i = 0; i < danhSachBai.length; i++) {
+                    if (danhSachBai[i].id !== id) {
+                        newPosts.push(danhSachBai[i]);
+                    }
+                }
+                danhSachBai = newPosts;
+                veBaiDang();
+            }
+        }
+
+        function themBinhLuan(id) {
+            var input = document.getElementById('comment-input-' + id);
+            var text = input.value.trim();
+            if (text === "") return;
+
+            var isIncognito = document.body.classList.contains('incognito');
+            var commentUser = isIncognito ? "Ẩn danh" : tenNguoiDungHienTai;
+
+            for (var i = 0; i < danhSachBai.length; i++) {
+                if (danhSachBai[i].id === id) {
+                    danhSachBai[i].comments.push({
+                        user: commentUser,
+                        text: text
+                    });
+                    break;
+                }
+            }
+            veBaiDang();
+        }
+
+        function veBaiDang() {
+            var feed = document.getElementById('newsFeed');
+            var keyword = document.getElementById('searchInput').value.toLowerCase();
+            feed.innerHTML = '';
+
+            var htmlChuoi = "";
+            var shown = 0;
+
+            for (var i = 0; i < danhSachBai.length; i++) {
+                var post = danhSachBai[i];
+
+                var matchSearch = post.content.toLowerCase().indexOf(keyword) !== -1 ||
+                                  post.author.toLowerCase().indexOf(keyword) !== -1 ||
+                                  post.maDocNhat.indexOf(keyword) !== -1;
+                if (!matchSearch) continue;
+
+                if (mucHienTai === 'anonymous' && !post.isAnonymous) continue;
+                if (mucHienTai === 'saved' && !post.isSaved) continue;
+
+                var extra = (chayHieuUng ? " enter" : "") + (post.id === idBaiMoi ? " fresh" : "");
+                var delay = (shown++) * 0.07;
+                var commentsHTML = "";
+                for (var j = 0; j < post.comments.length; j++) {
+                    var c = post.comments[j];
+                    commentsHTML += '<div class="comment-item"><strong>' + c.user + ':</strong> ' + c.text + '</div>';
+                }
+
+                var avatarSymbol = post.isAnonymous ? '?' : post.author[0];
+                var avatarBg = post.isAnonymous ? '#475569' : 'var(--primary-color)';
+                var likeClass = post.isLiked ? 'action-btn liked' : 'action-btn';
+                var likeText = post.isLiked ? 'Đã thích (' + post.likes + ')' : 'Thích (' + post.likes + ')';
+                var saveClass = post.isSaved ? 'action-btn saved' : 'action-btn';
+                var saveText = post.isSaved ? 'Đã lưu' : 'Lưu bài';
+
+                htmlChuoi += '<article class="post-card' + extra + '" id="post-' + post.id + '" style="animation-delay:' + delay + 's">' +
+                    '<div class="post-header">' +
+                        '<div class="author-info">' +
+                            '<div class="avatar' + (post.isAnonymous ? '' : ' on') + '" style="background: ' + avatarBg + '">' + avatarSymbol + '</div>' +
+                            '<div>' +
+                                '<div class="author-name">' + post.author + '</div>' +
+                                '<div class="post-time">' + post.time + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div style="display: flex; align-items: center; gap: 10px;">' +
+                            '<div class="ma-bai-viet">Mã: #' + post.maDocNhat + '</div>' +
+                            (laAdmin() ? '<button class="delete-btn" onclick="xoaBaiDang(' + post.id + ')" title="Xóa bài">✖</button>' : '') +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="post-content">' + post.content + '</div>';
+
+                if (post.image !== "") {
+                    htmlChuoi += '<img src="' + post.image + '" class="post-image" onerror="this.style.display=\'none\'">';
+                }
+
+                htmlChuoi += '<div class="post-actions">' +
+                        '<button id="like-' + post.id + '" class="' + likeClass + '" onclick="batTatThich(' + post.id + ')">' + likeText + '</button>' +
+                        '<button class="action-btn" onclick="document.getElementById(\'comment-input-' + post.id + '\').focus()">Bình luận (' + post.comments.length + ')</button>' +
+                        '<button class="' + saveClass + '" onclick="batTatLuu(' + post.id + ')">' + saveText + '</button>' +
+                    '</div>' +
+                    '<div class="comments-section">' +
+                        '<div class="comment-list">' + commentsHTML + '</div>' +
+                        '<div class="comment-input-box">' +
+                            '<input type="text" id="comment-input-' + post.id + '" placeholder="Viết bình luận..." onkeypress="if(event.key===\'Enter\') themBinhLuan(' + post.id + ')">' +
+                            '<button onclick="themBinhLuan(' + post.id + ')">Gửi</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</article>';
+            }
+
+            if (htmlChuoi === "") {
+                feed.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">Không tìm thấy bài viết nào phù hợp.</p>';
+            } else {
+                feed.innerHTML = htmlChuoi;
+                chayHieuUng = false;
+                idBaiMoi = null;
+            }
+        }
+
+        // Nếu đã có dữ liệu đăng nhập từ trước, tự động vẽ bảng tin luôn
+        if (nguoiDungDaLuu !== null) {
+            veBaiDang();
+        }
+
+        // ================= HIỆU ỨNG & GIỚI HẠN 100 THÀNH VIÊN =================
+        function demThanhVien() {
+            return Object.keys(JSON.parse(localStorage.getItem('minispace_users') || "{}")).length;
+        }
+
+        function capNhatSoThanhVien() {
+            var n = demThanhVien(), pct = Math.min(100, n / TOI_DA_THANH_VIEN * 100), full = n >= TOI_DA_THANH_VIEN;
+            document.getElementById('capTextAuth').textContent = full
+                ? 'Đã đủ ' + TOI_DA_THANH_VIEN + ' thành viên - không nhận thêm đăng ký'
+                : 'Đã có ' + n + '/' + TOI_DA_THANH_VIEN + ' thành viên - còn ' + (TOI_DA_THANH_VIEN - n) + ' chỗ trống';
+            document.getElementById('capFillAuth').style.width = pct + '%';
+            document.getElementById('capAuth').classList.toggle('full', full);
+        }
+
+        function hienThongBao(msg, err) {
+            var t = document.createElement('div');
+            t.className = 'toast' + (err ? ' err' : '');
+            t.textContent = msg;
+            document.getElementById('toasts').appendChild(t);
+            setTimeout(function() { t.remove(); }, 3700);
+        }
+
+        // Thay hộp thoại alert cũ bằng thông báo trượt đẹp mắt
+        window.alert = function(msg) {
+            var err = /không|chưa|tồn tại|đủ|Vui lòng/.test(msg);
+            hienThongBao(msg, err);
+            if (err && document.getElementById('authScreen').style.display !== 'none') {
+                var card = document.querySelector('.auth-card');
+                card.classList.remove('shake');
+                void card.offsetWidth;
+                card.classList.add('shake');
+            }
+        };
+
+        function banPhaoGiay() {
+            var cols = ['#4f46e5', '#a78bfa', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899'];
+            for (var i = 0; i < 90; i++) {
+                var c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + 'vw';
+                c.style.background = cols[i % cols.length];
+                c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                c.style.animationDuration = (2 + Math.random() * 2.5) + 's';
+                c.style.animationDelay = (Math.random() * 0.6) + 's';
+                document.body.appendChild(c);
+                setTimeout(function(el) { el.remove(); }, 5500, c);
+            }
+        }
+
+        function chaoMung() {
+            banPhaoGiay();
+            capNhatSoThanhVien();
+            hienThongBao('Chào mừng ' + tenNguoiDungHienTai + ' đến với MiniSpace!');
+        }
+
+        function hieuUngTim(id) {
+            var b = document.getElementById('like-' + id);
+            if (!b) return;
+            b.classList.add('pop');
+            var r = b.getBoundingClientRect();
+            var icons = ['+1'];
+            for (var i = 0; i < 7; i++) {
+                var h = document.createElement('span');
+                h.className = 'heart-fly';
+                h.textContent = icons[0];
+                h.style.left = ((r.left + r.width / 2) / heSoPhongTo()) + 'px';
+                h.style.top = (r.top / heSoPhongTo()) + 'px';
+                h.style.setProperty('--dx', (Math.random() * 120 - 60) + 'px');
+                h.style.animationDelay = (i * 0.05) + 's';
+                document.body.appendChild(h);
+                setTimeout(function(el) { el.remove(); }, 1400, h);
+            }
+        }
+
+        var _batTatThichGoc = batTatThich;
+        batTatThich = function(id) {
+            _batTatThichGoc(id);
+            for (var i = 0; i < danhSachBai.length; i++) {
+                if (danhSachBai[i].id === id && danhSachBai[i].isLiked) { hieuUngTim(id); break; }
+            }
+        };
+
+        xoaBaiDang = function(id) {
+            if (!laAdmin()) { hienThongBao("Chỉ quản trị viên mới được xóa bài đăng!", true); return; }
+            if (!confirm("Bạn có chắc muốn xóa bài viết này?")) return;
+            var el = document.getElementById('post-' + id);
+            if (el) el.classList.add('removing');
+            setTimeout(function() {
+                danhSachBai = danhSachBai.filter(function(p) { return p.id !== id; });
+                veBaiDang();
+                hienThongBao('Đã xóa bài viết');
+            }, 350);
+        };
+
+        var _batTatAnDanhGoc = batTatAnDanh;
+        batTatAnDanh = function() {
+            _batTatAnDanhGoc();
+            hienThongBao(document.body.classList.contains('incognito') ? 'Đã vào chế độ Ẩn danh' : 'Đã thoát chế độ Ẩn danh');
+        };
+
+        // Bong bóng bay nền
+        (function() {
+            var w = document.getElementById('bubbles');
+            for (var i = 0; i < 16; i++) {
+                var s = document.createElement('span'), z = 20 + Math.random() * 70;
+                s.style.width = s.style.height = z + 'px';
+                s.style.left = Math.random() * 100 + '%';
+                s.style.animationDuration = (12 + Math.random() * 16) + 's';
+                s.style.animationDelay = (-Math.random() * 20) + 's';
+                w.appendChild(s);
+            }
+        })();
+
+        // Hiệu ứng gợn sóng khi bấm nút
+        document.addEventListener('click', function(e) {
+            var b = e.target.closest('button');
+            if (!b || b.id === 'toTop') return;
+            var r = b.getBoundingClientRect(), d = Math.max(r.width, r.height), s = document.createElement('span');
+            s.className = 'ripple';
+            s.style.width = s.style.height = d + 'px';
+            s.style.left = (e.clientX - r.left - d / 2) + 'px';
+            s.style.top = (e.clientY - r.top - d / 2) + 'px';
+            b.appendChild(s);
+            setTimeout(function() { s.remove(); }, 600);
+        });
+
+        // Nút lên đầu trang
+        window.addEventListener('scroll', function() {
+            document.getElementById('toTop').classList.toggle('show', window.scrollY > 300);
+        });
+
+        // Gợi ý đổi liên tục trong ô đăng bài
+        var phs = ['Bạn đang nghĩ gì thế? Chia sẻ ngay... ', 'Hôm nay có gì vui không? ', 'Thử đăng một bài ẩn danh xem ', 'Chia sẻ khoảnh khắc đẹp nào '], pi = 0;
+        setInterval(function() {
+            pi = (pi + 1) % phs.length;
+            document.getElementById('postInput').placeholder = phs[pi];
+        }, 3500);
+
+        capNhatSoThanhVien();
+        if (nguoiDungDaLuu !== null) hienThongBao('Chào mừng trở lại, ' + nguoiDungDaLuu + '!');
+
+        // ================= MỤC MỚI: TRÒ CHƠI / SÁCH / TÂM SỰ =================
+        function thoatHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+        function boDau(s) { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'); }
+
+        // Chuyển mục
+        var _chuyenMucGoc2 = chuyenMuc;
+        chuyenMuc = function(t, b) {
+            _chuyenMucGoc2(t, b);
+            var isFeed = ['all', 'anonymous', 'saved'].indexOf(t) > -1;
+            document.querySelector('.create-box').style.display = isFeed ? '' : 'none';
+            document.getElementById('newsFeed').style.display = isFeed ? '' : 'none';
+            ['games', 'books', 'chat'].forEach(function(id) {
+                document.getElementById('panel-' + id).style.display = (t === id) ? 'block' : 'none';
+            });
+            if (t === 'books') veDanhSachSach();
+            if (t === 'chat') khoiTaoTamSu();
+        };
+        var _chaoMungGoc = chaoMung;
+        chaoMung = function() {
+            _chaoMungGoc();
+            if (document.getElementById('panel-chat').style.display === 'block') khoiTaoTamSu();
+        };
+
+        function hienTroChoi(g, btn) {
+            document.getElementById('game-ttt').style.display = g === 'ttt' ? 'block' : 'none';
+            document.getElementById('game-duck').style.display = g === 'duck' ? 'block' : 'none';
+            var cs = document.querySelectorAll('#panel-games .chips .chip');
+            for (var i = 0; i < cs.length; i++) cs[i].classList.remove('active');
+            btn.classList.add('active');
+        }
+
+        // ---------- CỜ O X ----------
+        var CAC_DUONG_THANG = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        var idTab = Math.random().toString(36).slice(2);
+        var troCoOX = { b: Array(9).fill(''), turn: 'X', over: false, win: null, mode: 'ai', my: 'X', room: null, X: null, O: null };
+
+        function oxNguoiThang(b) {
+            for (var k = 0; k < CAC_DUONG_THANG.length; k++) {
+                var l = CAC_DUONG_THANG[k];
+                if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return { w: b[l[0]], l: l };
+            }
+            return b.every(function(x) { return x; }) ? { w: 'draw' } : null;
+        }
+
+        function oxChuTrangThai() {
+            if (troCoOX.mode === 'online') {
+                if (!troCoOX.room) return 'Nhập mã phòng rồi bấm "Vào phòng" ';
+                if (!troCoOX.O) return 'Phòng "' + troCoOX.room + '": đang chờ bạn bè vào... (bạn là ' + troCoOX.my + ')';
+                if (troCoOX.over) return troCoOX.win.w === 'draw' ? 'Hòa!' : (troCoOX.win.w === troCoOX.my ? 'Bạn thắng!' : 'Bạn thua rồi!');
+                return troCoOX.turn === troCoOX.my ? 'Đến lượt bạn (' + troCoOX.my + ')' : 'Đang chờ đối thủ (' + troCoOX.turn + ')...';
+            }
+            if (troCoOX.over) return troCoOX.win.w === 'draw' ? 'Hòa!' : '' + troCoOX.win.w + ' thắng!';
+            return 'Lượt của ' + troCoOX.turn + (troCoOX.mode === 'ai' && troCoOX.turn === 'O' ? ' (máy đang nghĩ...)' : '');
+        }
+
+        function oxVeBan() {
+            var h = '';
+            for (var i = 0; i < 9; i++) {
+                var v = troCoOX.b[i];
+                var c = 'cell' + (v === 'O' ? ' o' : '') + (troCoOX.win && troCoOX.win.l && troCoOX.win.l.indexOf(i) > -1 ? ' win' : '');
+                h += '<button class="' + c + '" onclick="oxBamO(' + i + ')">' + (v ? '<span>' + (v === 'X' ? '❌' : '⭕') + '</span>' : '') + '</button>';
+            }
+            document.getElementById('tttBoard').innerHTML = h;
+            document.getElementById('tttStatus').textContent = oxChuTrangThai();
+        }
+
+        function oxKetThuc() {
+            var w = troCoOX.win.w;
+            if (w === 'draw') { hienThongBao('Hòa nhau rồi!'); return; }
+            var mine = troCoOX.mode === 'ai' ? w === 'X' : (troCoOX.mode === 'online' ? w === troCoOX.my : true);
+            if (mine) banPhaoGiay();
+            if (troCoOX.mode === 'ai') hienThongBao(mine ? 'Bạn thắng máy rồi!' : 'Máy thắng, thử lại nhé!');
+            else if (troCoOX.mode === 'online') hienThongBao(mine ? 'Bạn thắng!' : 'Bạn thua, gỡ lại nào!');
+            else hienThongBao('' + w + ' thắng!');
+        }
+
+        function oxLuu() {
+            localStorage.setItem('ttt_room_' + troCoOX.room, JSON.stringify({ b: troCoOX.b, turn: troCoOX.turn, over: troCoOX.over, win: troCoOX.win, X: troCoOX.X, O: troCoOX.O, nX: troCoOX.nX, nO: troCoOX.nO }));
+        }
+
+        function oxDanh(i) {
+            troCoOX.b[i] = troCoOX.turn;
+            var r = oxNguoiThang(troCoOX.b);
+            if (r) { troCoOX.over = true; troCoOX.win = r; } else { troCoOX.turn = troCoOX.turn === 'X' ? 'O' : 'X'; }
+            oxVeBan();
+            if (r) oxKetThuc();
+            if (troCoOX.mode === 'online') oxLuu();
+        }
+
+        function mayChonNuoc() {
+            var b = troCoOX.b, e = [];
+            for (var i = 0; i < 9; i++) if (!b[i]) e.push(i);
+            function find(sym) {
+                for (var k = 0; k < CAC_DUONG_THANG.length; k++) {
+                    var l = CAC_DUONG_THANG[k], v = [b[l[0]], b[l[1]], b[l[2]]];
+                    var n = v.filter(function(x) { return x === sym; }).length;
+                    if (n === 2 && v.indexOf('') > -1) return l[v.indexOf('')];
+                }
+                return -1;
+            }
+            var m = find('O');
+            if (m < 0) m = find('X');
+            if (m < 0 && !b[4]) m = 4;
+            if (m < 0) {
+                var c = [0, 2, 6, 8].filter(function(i) { return !b[i]; });
+                if (c.length) m = c[Math.floor(Math.random() * c.length)];
+            }
+            if (m < 0) m = e[Math.floor(Math.random() * e.length)];
+            return m;
+        }
+
+        function oxBamO(i) {
+            if (troCoOX.over || troCoOX.b[i]) return;
+            if (troCoOX.mode === 'online') {
+                if (!troCoOX.room || !troCoOX.O || troCoOX.turn !== troCoOX.my) return;
+                oxDanh(i); return;
+            }
+            if (troCoOX.mode === 'ai') {
+                if (troCoOX.turn !== 'X') return;
+                oxDanh(i);
+                if (!troCoOX.over) setTimeout(function() {
+                    if (!troCoOX.over && troCoOX.mode === 'ai' && troCoOX.turn === 'O') oxDanh(mayChonNuoc());
+                }, 500);
+                return;
+            }
+            oxDanh(i);
+        }
+
+        function oxChoiLai() {
+            troCoOX.b = Array(9).fill(''); troCoOX.turn = 'X'; troCoOX.over = false; troCoOX.win = null;
+            oxVeBan();
+            if (troCoOX.mode === 'online' && troCoOX.room) oxLuu();
+        }
+
+        function oxBatDau() {
+            troCoOX.mode = document.getElementById('tttMode').value;
+            document.getElementById('tttRoomRow').style.display = troCoOX.mode === 'online' ? 'block' : 'none';
+            troCoOX.room = null; troCoOX.O = null; troCoOX.my = 'X';
+            oxChoiLai();
+        }
+
+        function oxVaoPhong() {
+            var code = document.getElementById('tttRoom').value.trim();
+            if (!code) { hienThongBao('Hãy nhập mã phòng!', true); return; }
+            var key = 'ttt_room_' + code, st = null;
+            try { st = JSON.parse(localStorage.getItem(key)); } catch (e) {}
+            if (!st) {
+                st = { b: Array(9).fill(''), turn: 'X', over: false, win: null, X: idTab, O: null, nX: tenNguoiDungHienTai, nO: '' };
+                troCoOX.my = 'X';
+            } else if (st.X === idTab) { troCoOX.my = 'X'; }
+            else if (st.O === idTab) { troCoOX.my = 'O'; }
+            else if (!st.O) { st.O = idTab; st.nO = tenNguoiDungHienTai; troCoOX.my = 'O'; }
+            else { hienThongBao('Phòng này đã đủ 2 người rồi!', true); return; }
+            localStorage.setItem(key, JSON.stringify(st));
+            troCoOX.room = code;
+            Object.assign(troCoOX, st);
+            oxVeBan();
+            hienThongBao('Đã vào phòng "' + code + '" với vai ' + troCoOX.my);
+        }
+
+        window.addEventListener('storage', function(e) {
+            if (troCoOX.mode === 'online' && troCoOX.room && e.key === 'ttt_room_' + troCoOX.room && e.newValue) {
+                var was = troCoOX.over;
+                Object.assign(troCoOX, JSON.parse(e.newValue));
+                oxVeBan();
+                if (!was && troCoOX.over && troCoOX.win) oxKetThuc();
+            }
+        });
+
+        // ---------- ĐUA VỊT ----------
+        var MAU_VIT = ['#f59e0b', '#06b6d4', '#ec4899', '#8b5cf6', '#10b981'];
+        var vitDaChon = -1, vitDongHo = null, vitViTri = [0, 0, 0, 0, 0], vitThongKe = { w: 0, l: 0 };
+
+        function vitDungDuong() {
+            var t = '', p = '';
+            for (var i = 0; i < 5; i++) {
+                t += '<div class="lane"><b style="background:' + MAU_VIT[i] + '">' + (i + 1) + '</b><span class="duck" id="duck-' + i + '" style="left:8%">Vịt</span></div>';
+                p += '<button class="chip" id="pick-' + i + '" onclick="vitChon(' + i + ')"><span style="color:' + MAU_VIT[i] + '">●</span> Vịt số ' + (i + 1) + '</button>';
+            }
+            document.getElementById('duckTrack').innerHTML = t + '<div class="finish"></div>';
+            document.getElementById('duckPick').innerHTML = p;
+        }
+
+        function vitChon(i) {
+            if (vitDongHo) return;
+            vitDaChon = i;
+            for (var k = 0; k < 5; k++) document.getElementById('pick-' + k).classList.toggle('active', k === i);
+            document.getElementById('duckResult').textContent = 'Bạn chọn Vịt số ' + (i + 1) + '. Bấm bắt đầu nào!';
+        }
+
+        function vitDiChuyen() {
+            for (var i = 0; i < 5; i++) document.getElementById('duck-' + i).style.left = (8 + Math.min(vitViTri[i], 100) * 0.8) + '%';
+        }
+
+        function vitBatDau() {
+            if (vitDongHo) return;
+            if (vitDaChon < 0) { hienThongBao('Hãy chọn một chú vịt trước! ', true); return; }
+            vitViTri = [0, 0, 0, 0, 0];
+            vitDiChuyen();
+            document.getElementById('duckTrack').classList.add('running');
+            document.getElementById('duckResult').textContent = 'Xuất phát!';
+            vitDongHo = setInterval(function() {
+                var done = false;
+                for (var i = 0; i < 5; i++) {
+                    vitViTri[i] += Math.random() * 2.2 + (Math.random() < 0.1 ? 2.5 : 0);
+                    if (vitViTri[i] >= 100) done = true;
+                }
+                vitDiChuyen();
+                if (done) { clearInterval(vitDongHo); vitDongHo = null; vitKetThuc(); }
+            }, 60);
+        }
+
+        function vitKetThuc() {
+            document.getElementById('duckTrack').classList.remove('running');
+            var w = 0;
+            for (var i = 1; i < 5; i++) if (vitViTri[i] > vitViTri[w]) w = i;
+            var win = (w === vitDaChon);
+            if (win) { vitThongKe.w++; banPhaoGiay(); } else { vitThongKe.l++; }
+            document.getElementById('duckResult').textContent = 'Vịt số ' + (w + 1) + ' về nhất! ' + (win ? 'Bạn đoán đúng!' : 'Tiếc quá, thử lại nhé!');
+            document.getElementById('duckStat').textContent = 'Chiến tích: ' + vitThongKe.w + ' lần đúng · ' + vitThongKe.l + ' lần sai';
+        }
+
+        // ---------- ĐỌC SÁCH ----------
+        var sachMacDinh = [
+            {
+                id: 'mac1', fixed: true, title: 'Hướng dẫn thêm sách', author: 'MiniSpace',
+                content: 'Chào mừng bạn đến với thư viện MiniSpace!\nSách trong thư viện do quản trị viên thêm vào, mỗi lần xuống dòng là một đoạn mới.\nBạn có thể chỉnh cỡ chữ bằng nút A− và A+ khi đọc.\nChúc bạn có những giờ phút đọc sách thật thư giãn! '
+            }
+        ];
+        var coChuSach = 17;
+
+        function layKhoSach() {
+            try { return JSON.parse(localStorage.getItem('minispace_books') || '[]'); } catch (e) { return []; }
+        }
+        function tatCaSach() { return sachMacDinh.concat(layKhoSach()); }
+
+        function veDanhSachSach() {
+            var all = tatCaSach(), h = '';
+            for (var i = 0; i < all.length; i++) {
+                var b = all[i];
+                h += '<div class="book-item" onclick="docSach(\'' + b.id + '\')"><div><strong>' + thoatHtml(b.title) + '</strong><br><small>' + thoatHtml(b.author || 'Khuyết danh') + '</small></div>' +
+                     (b.fixed || !laAdmin() ? '' : '<button class="mini-del" title="Xóa sách" onclick="event.stopPropagation();xoaSach(\'' + b.id + '\')">Xóa</button>') + '</div>';
+            }
+            document.getElementById('bookItems').innerHTML = h;
+            document.getElementById('nutThemSach').style.display = laAdmin() ? '' : 'none';
+            if (!laAdmin()) document.getElementById('bookForm').style.display = 'none';
+        }
+
+        function batTatFormSach() {
+            if (!laAdmin()) return;
+            var f = document.getElementById('bookForm');
+            f.style.display = f.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function luuSach() {
+            if (!laAdmin()) { hienThongBao("Chỉ quản trị viên mới được thêm sách!", true); return; }
+            var t = document.getElementById('bookTitle').value.trim();
+            var a = document.getElementById('bookAuthor').value.trim();
+            var c = document.getElementById('bookContent').value.trim();
+            if (!t || !c) { hienThongBao('Cần nhập tên sách và nội dung!', true); return; }
+            var ds = layKhoSach();
+            ds.push({ id: 'b' + Date.now(), title: t, author: a, content: c });
+            try { localStorage.setItem('minispace_books', JSON.stringify(ds)); }
+            catch (e) { hienThongBao('Bộ nhớ trình duyệt đã đầy, không lưu được sách này!', true); return; }
+            ['bookTitle', 'bookAuthor', 'bookContent'].forEach(function(id) { document.getElementById(id).value = ''; });
+            batTatFormSach();
+            veDanhSachSach();
+            hienThongBao('Đã thêm sách "' + t + '"');
+        }
+
+        function xoaSach(id) {
+            if (!laAdmin()) { hienThongBao("Chỉ quản trị viên mới được xóa sách!", true); return; }
+            if (!confirm('Xóa cuốn sách này?')) return;
+            localStorage.setItem('minispace_books', JSON.stringify(layKhoSach().filter(function(b) { return b.id !== id; })));
+            veDanhSachSach();
+        }
+
+        function docSach(id) {
+            var b = tatCaSach().filter(function(x) { return x.id === id; })[0];
+            if (!b) return;
+            var words = b.content.split(/\s+/).length;
+            document.getElementById('readerTitle').textContent = b.title;
+            document.getElementById('readerMeta').textContent = (b.author || 'Khuyết danh') + ' · khoảng ' + Math.max(1, Math.round(words / 200)) + ' phút đọc';
+            var paras = b.content.split('\n').filter(function(x) { return x.trim(); });
+            document.getElementById('readerText').innerHTML = paras.map(function(x) { return '<p>' + thoatHtml(x) + '</p>'; }).join('');
+            document.getElementById('readerText').style.fontSize = coChuSach + 'px';
+            document.getElementById('bookList').style.display = 'none';
+            document.getElementById('bookReader').style.display = 'block';
+            document.getElementById('readerText').scrollTop = 0;
+        }
+
+        function dongSach() {
+            document.getElementById('bookReader').style.display = 'none';
+            document.getElementById('bookList').style.display = 'block';
+        }
+
+        function doiCoChuSach(d) {
+            coChuSach = Math.max(12, Math.min(30, coChuSach + d));
+            document.getElementById('readerText').style.fontSize = coChuSach + 'px';
+        }
+
+        // ---------- TÂM SỰ VỚI MÂY ----------
+        var tamSuDangBan = false, tamSuCuoi = '';
+        var VIET_TAT = { ko:'khong', kh:'khong', k:'khong', hok:'khong', hong:'khong', khum:'khong', j:'gi', dc:'duoc', dk:'duoc', r:'roi', mik:'minh', mk:'minh', ntn:'nhu the nao', bt:'binh thuong', vs:'voi', cx:'cung', ng:'nguoi', buoon:'buon' };
+        function chuanHoa(t) {
+            return boDau(t).replace(/(.)\1{2,}/g, '$1').replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).map(function(w) { return VIET_TAT[w] || w; }).join(' ') + ' ';
+        }
+        var TRA_LOI_CHUNG = ['Mình nghe đây. Bạn kể thêm nhé ', 'Mình hiểu. Rồi sao nữa bạn?', 'Cảm ơn bạn đã chia sẻ. Bạn thấy thế nào về chuyện đó?'];
+        var TRA_LOI_NGAN = ['Mình nghe đây ', 'Bạn muốn kể tiếp không?', 'Cứ từ từ nhé, mình ở đây.'];
+        var LUAT_MAY = [
+            { k: /\b(buon|khoc|chan doi|chan nan|that vong|tui than|te qua|nan|suy|tuyet vong|dau long|trong rong|khong vui|bi bo roi|bi ghet|ton thuong)\b/g, r: [
+                'Mình rất tiếc. Bạn cứ buồn đi, mình ở đây nghe. ', 'Chuyện gì làm bạn buồn vậy?', 'Ôm bạn một cái Có chuyện gì thế?'] },
+            { k: /\b(met|kiet suc|stress|ap luc|cang thang|qua tai|duoi|ut che|chiu khong noi|deadline)\b/g, r: [
+                'Bạn mệt rồi, nghỉ một chút nhé ', 'Áp lực nhiều nhỉ. Chuyện nào nặng nhất?', 'Hít sâu cùng mình nhé: hít vào... thở ra... '] },
+            { k: /\b(co don|mot minh|khong ai|chang co ai|lac long|khong co ban)\b/g, r: [
+                'Mình ở đây với bạn. Bạn không một mình đâu ', 'Bạn thấy cô đơn từ khi nào?'] },
+            { k: /\b(gian|tuc|buc|ghet|kho chiu|cao|phat dien)\b/g, r: [
+                'Bạn cứ xả ra đi, mình nghe.', 'Chuyện gì làm bạn tức vậy?'] },
+            { k: /\b(lo lang|lo qua|lo au|lo so|so hai|so qua|so lam|so|hoi hop|bat an|run)\b/g, r: [
+                'Lo lắng khó chịu thật. Bạn lo điều gì nhất?', 'Thử chia nỗi lo thành từng việc nhỏ nhé?'] },
+            { k: /\b(nho|nguoi yeu|chia tay|crush|thich mot nguoi|yeu|that tinh|ghen|bi tu choi|tan vo)\b/g, r: [
+                'Chuyện tình cảm dễ làm lòng rối nhỉ Bạn kể mình nghe nhé.', 'Bà đang nhớ ai à?'] },
+            { k: /\b(gia dinh|me|bo|ba me|cha me|anh chi|em gai|em trai|bi mang|bi la|cai nhau)\b/g, r: [
+                'Chuyện gia đình hay chạm sâu lắm. Có chuyện gì vậy? ', 'Bạn muốn kể chuyện gì ở nhà?'] },
+            { k: /\b(hoc|thi|diem|truong|bai tap|giao vien|thay co|rot|truot|on thi|bai kiem tra)\b/g, r: [
+                'Học hành áp lực thật. Bạn gặp khó ở đâu? ', 'Điểm số không định nghĩa bạn đâu. Chuyện gì xảy ra vậy?'] },
+            { k: /\b(cong viec|sep|dong nghiep|luong|di lam|that nghiep|bi duoi viec|tang ca)\b/g, r: [
+                'Công việc làm bạn mệt nhỉ. Chuyện gì xảy ra? ', 'Nghe bạn đang nặng lòng chuyện công việc.'] },
+            { k: /\b(mat ngu|khong ngu duoc|thuc khuya|ngu khong|trang tran|ac mong)\b/g, r: [
+                'Khó ngủ mệt lắm. Thử tắt màn hình và thở chậm nhé ', 'Đầu bạn đang nghĩ gì mà chưa ngủ được?'] },
+            { k: /\b(xau|vo dung|tu ti|khong gioi|that bai|ngu ngoc|ghet ban than|chang ra gi|khong xung dang)\b/g, r: [
+                'Bạn xứng đáng được yêu thương. Đừng quá khắt khe với mình nhé ', 'Điều gì làm bạn nghĩ vậy về bản thân?'] },
+            { k: /\b(vui|hanh phuc|tuyet|may man|thanh cong|dat duoc|tot qua|yeu doi|hao hung)\b/g, r: [
+                'Tuyệt quá! Kể mình nghe với!', 'Vui lây với bạn luôn! '] },
+            { k: /\b(cam on|thank|thanks)\b/g, r: ['Không có gì đâu bạn ', 'Mình luôn ở đây khi bạn cần '] },
+            { k: /^(hi|hello|helo|alo|chao|xin chao|hey)\b/g, r: ['Chào bạn! Hôm nay bạn thế nào? ', 'Xin chào! Bạn muốn kể gì nào?'] },
+            { k: /\b(tam biet|ngu ngon|bye|di ngu|hen gap lai)\b/g, r: ['Ngủ ngon nhé, hẹn gặp lại ', 'Hẹn gặp lại bạn nhé '] },
+            { k: /\b(ban la ai|may la ai|may la gi|ban ten gi|may ten gi)\b/g, r: ['Mình là Mây một chatbot nhỏ để lắng nghe bạn.'] },
+            { k: /\b(khong biet noi|khong biet ke|kho noi|khong biet bat dau|khong biet sao)\b/g, r: [
+                'Không sao, cứ từ từ. Bạn nghĩ gì cũng được ', 'Thử bắt đầu bằng cảm giác của bạn lúc này nhé.'] }
+        ];
+
+        function mayTraLoi(t) {
+            var s = chuanHoa(t);
+            if (/\b(tu tu|tu sat|khong muon song|muon chet|chet di|het muon song|song lam gi|tu lam dau|tu hai|cat tay|ket thuc tat ca|bien mat khoi the gian)\b/.test(s)) {
+                return 'Mình lo cho bạn lắm Mình chỉ là chatbot nên chưa đủ giúp bạn lúc này. Hãy nói ngay với người bạn tin (người thân, bạn bè, thầy cô) hoặc đến cơ sở y tế gần nhất. Nếu đang nguy hiểm, hãy gọi 115. Bạn không một mình.';
+            }
+            var best = null, bn = 0;
+            LUAT_MAY.forEach(function(ru) {
+                var m = s.match(ru.k);
+                if (m && m.length > bn) { bn = m.length; best = ru; }
+            });
+            var pool;
+            if (best) pool = best.r;
+            else if (t.indexOf('?') > -1) pool = ['Mình chỉ biết lắng nghe thôi. Còn bạn nghĩ sao?'];
+            else if (s.trim().split(/\s+/).length <= 2) pool = TRA_LOI_NGAN;
+            else pool = TRA_LOI_CHUNG;
+            var r;
+            do { r = pool[Math.floor(Math.random() * pool.length)]; } while (r === tamSuCuoi && pool.length > 1);
+            tamSuCuoi = r;
+            return r;
+        }
+
+        function khoaTamSu() { return 'minispace_chat_' + tenNguoiDungHienTai; }
+        function taiTamSu() { try { return JSON.parse(localStorage.getItem(khoaTamSu()) || '[]'); } catch (e) { return []; } }
+        function luuTamSu(h) { localStorage.setItem(khoaTamSu(), JSON.stringify(h.slice(-100))); }
+
+        function veTamSu() {
+            var box = document.getElementById('chatBox'), o = '';
+            taiTamSu().forEach(function(m) { o += '<div class="msg ' + m.w + '">' + thoatHtml(m.t) + '</div>'; });
+            box.innerHTML = o;
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function khoiTaoTamSu() {
+            var h = taiTamSu();
+            if (!h.length) {
+                h.push({ w: 'bot', t: 'Chào ' + tenNguoiDungHienTai + '! Mình là Mây Mình ở đây để lắng nghe bạn. Hôm nay bạn thế nào?' });
+                luuTamSu(h);
+            }
+            veTamSu();
+        }
+
+        function guiTamSu(txt) {
+            var inp = document.getElementById('chatInput');
+            var t = (txt || inp.value).trim();
+            if (!t || tamSuDangBan) return;
+            inp.value = '';
+            var h = taiTamSu();
+            h.push({ w: 'me', t: t });
+            luuTamSu(h);
+            veTamSu();
+            tamSuDangBan = true;
+            var box = document.getElementById('chatBox');
+            var ty = document.createElement('div');
+            ty.className = 'msg bot typing';
+            ty.innerHTML = '<span></span><span></span><span></span>';
+            box.appendChild(ty);
+            box.scrollTop = box.scrollHeight;
+            setTimeout(function() {
+                var h2 = taiTamSu();
+                h2.push({ w: 'bot', t: mayTraLoi(t) });
+                luuTamSu(h2);
+                tamSuDangBan = false;
+                veTamSu();
+            }, 800 + Math.random() * 900);
+        }
+
+        function xoaTamSu() {
+            if (!confirm('Xóa toàn bộ cuộc trò chuyện với Mây?')) return;
+            localStorage.removeItem(khoaTamSu());
+            khoiTaoTamSu();
+        }
+
+        vitDungDuong();
+        oxBatDau();
+
+        // ================= BẢN CẬP NHẬT =================
+        function heSoPhongTo() { return window.innerWidth >= 900 ? 1.1 : 1; }
+        function dangHien(id) { return document.getElementById(id).style.display === 'block'; }
+        function maHoaTen(n) { return encodeURIComponent(n).replace(/'/g, '%27'); }
+        function gioPhut(ts) { return new Date(ts).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); }
+
+        // ---------- Kiểm duyệt từ thô tục ----------
+        var THO_TUC = ['cặc', 'lồn', 'địt', 'đĩ', 'đụ', 'buồi', 'đéo', 'đmm', 'dmm', 'đcm', 'dcm', 'vcl', 'vkl'];
+        function thoTuc(text) {
+            var found = [], toks = text.normalize('NFC').toLowerCase().split(/[^\p{L}\p{N}]+/u);
+            toks.forEach(function(w) { if (THO_TUC.indexOf(w) > -1 && found.indexOf(w) < 0) found.push(w); });
+            var n = ' ' + boDau(text).replace(/[^a-z0-9]+/g, ' ') + ' ';
+            ['dit me', 'dit con', 'du ma', 'dit cu', 'cac lon'].forEach(function(ph) {
+                if (n.indexOf(' ' + ph + ' ') > -1 && found.indexOf(ph) < 0) found.push(ph);
+            });
+            return found;
+        }
+        var _luuSachGoc = luuSach;
+        luuSach = function() {
+            var all = ['bookTitle', 'bookAuthor', 'bookContent'].map(function(id) { return document.getElementById(id).value; }).join('\n');
+            var f = thoTuc(all);
+            if (f.length) {
+                var masked = f.map(function(w) { return w.charAt(0) + new Array(w.length).join('*'); }).join(', ');
+                hienThongBao('Nội dung có từ ngữ thô tục (' + masked + ') nên không thể thêm. Hãy chỉnh sửa rồi thử lại!', true);
+                return;
+            }
+            _luuSachGoc();
+        };
+
+        // ---------- Đua vịt: sửa hướng & chạm đích ----------
+        vitDiChuyen = function() {
+            var tr = document.getElementById('duckTrack'), W = tr.clientWidth;
+            if (!W) return;
+            var dw = document.getElementById('duck-0').offsetWidth || 30;
+            var start = 36, maxL = W - 18 - dw;
+            for (var i = 0; i < 5; i++) {
+                document.getElementById('duck-' + i).style.left = (start + (maxL - start) * Math.min(vitViTri[i], 100) / 100) + 'px';
+            }
+        };
+
+        // ---------- Cờ O X: tạo phòng / vào phòng bằng mã ----------
+        var _oxBatDauGoc = oxBatDau;
+        oxBatDau = function() {
+            _oxBatDauGoc();
+            var bx = document.getElementById('tttCodeBox');
+            if (bx) bx.style.display = 'none';
+        };
+        function oxTaoPhong() {
+            var code;
+            do { code = String(Math.floor(10000 + Math.random() * 90000)); } while (localStorage.getItem('ttt_room_' + code));
+            var st = { b: Array(9).fill(''), turn: 'X', over: false, win: null, X: idTab, O: null, nX: tenNguoiDungHienTai, nO: '' };
+            localStorage.setItem('ttt_room_' + code, JSON.stringify(st));
+            troCoOX.my = 'X'; troCoOX.room = code;
+            Object.assign(troCoOX, st);
+            oxVeBan();
+            var bx = document.getElementById('tttCodeBox');
+            bx.style.display = 'block';
+            bx.innerHTML = 'Mã phòng của bạn: <b style="font-size:18px;letter-spacing:2px">' + code + '</b> <button class="chip" onclick="navigator.clipboard.writeText(\'' + code + '\');hienThongBao(\'Đã sao chép mã phòng!\')">Copy</button> — gửi mã này cho bạn bè.';
+        }
+        oxVaoPhong = function() {
+            var code = document.getElementById('tttRoom').value.trim();
+            if (!code) { hienThongBao('Hãy dán mã phòng của bạn bè!', true); return; }
+            var st = null;
+            try { st = JSON.parse(localStorage.getItem('ttt_room_' + code)); } catch (e) {}
+            if (!st) { hienThongBao('Không tìm thấy phòng với mã này!', true); return; }
+            if (st.X === idTab) troCoOX.my = 'X';
+            else if (st.O === idTab) troCoOX.my = 'O';
+            else if (!st.O) {
+                st.O = idTab; st.nO = tenNguoiDungHienTai; troCoOX.my = 'O';
+                localStorage.setItem('ttt_room_' + code, JSON.stringify(st));
+            } else { hienThongBao('Phòng này đã đủ 2 người!', true); return; }
+            troCoOX.room = code;
+            Object.assign(troCoOX, st);
+            oxVeBan();
+            hienThongBao('Đã vào phòng ' + code + ' (bạn là ' + troCoOX.my + ')');
+        };
+
+        // ---------- Trò chơi mới ----------
+        var DANH_SACH_TRO_CHOI = ['ttt', 'duck', 'mem', 'rps', 'guess', 'mole', 'snake'];
+        function dungMoiTroChoi() {
+            clearInterval(troChuot.t); troChuot.t = null;
+            clearInterval(troRan.t); troRan.t = null;
+        }
+        hienTroChoi = function(g, btn) {
+            dungMoiTroChoi();
+            DANH_SACH_TRO_CHOI.forEach(function(x) { document.getElementById('game-' + x).style.display = x === g ? 'block' : 'none'; });
+            var cs = document.querySelectorAll('#gameMenu .chip');
+            for (var i = 0; i < cs.length; i++) cs[i].classList.remove('active');
+            btn.classList.add('active');
+            if (g === 'duck') vitDiChuyen();
+            if (g === 'mem' && !troLatThe.cards.length) theBatDau();
+            if (g === 'guess' && !troDoanSo.n) doanSoMoi();
+            if (g === 'mole') { troChuot.pos = -1; chuotVe(); }
+            if (g === 'snake') ranVe();
+        };
+
+        // Lật thẻ
+        var troLatThe = { cards: [], open: [], lock: false, moves: 0, found: 0 };
+        function theBatDau() {
+            var em = ['🍎', '🍌', '🍇', '🍒', '🍓', '🍉'];
+            var a = em.concat(em).sort(function() { return Math.random() - 0.5; });
+            troLatThe = { cards: a.map(function(e) { return { e: e, f: false, m: false }; }), open: [], lock: false, moves: 0, found: 0 };
+            theVe();
+        }
+        function theVe() {
+            var h = '';
+            troLatThe.cards.forEach(function(c, i) {
+                h += '<button class="mcard' + (c.f || c.m ? ' on' : '') + (c.m ? ' ok' : '') + '" onclick="theLat(' + i + ')">' + (c.f || c.m ? c.e : '?') + '</button>';
+            });
+            document.getElementById('memGrid').innerHTML = h;
+            document.getElementById('memStatus').textContent = 'Lượt: ' + troLatThe.moves + ' · Cặp: ' + troLatThe.found + '/6';
+        }
+        function theLat(i) {
+            var c = troLatThe.cards[i];
+            if (troLatThe.lock || c.f || c.m) return;
+            c.f = true; troLatThe.open.push(i); theVe();
+            if (troLatThe.open.length === 2) {
+                troLatThe.moves++;
+                var a = troLatThe.cards[troLatThe.open[0]], b = c;
+                if (a.e === b.e) {
+                    a.m = b.m = true; a.f = b.f = false; troLatThe.open = []; troLatThe.found++; theVe();
+                    if (troLatThe.found === 6) { banPhaoGiay(); hienThongBao('Hoàn thành sau ' + troLatThe.moves + ' lượt!'); }
+                } else {
+                    troLatThe.lock = true;
+                    setTimeout(function() { a.f = b.f = false; troLatThe.open = []; troLatThe.lock = false; theVe(); }, 800);
+                }
+            }
+        }
+
+        // Kéo búa bao
+        var troKeoBuaBao = { w: 0, l: 0, d: 0 };
+        function keoBuaBaoChoi(u) {
+            var o = ['bua', 'bao', 'keo'], ic = { bua: '✊ Búa', bao: '✋ Bao', keo: '✌️ Kéo' }
+            var m = o[Math.floor(Math.random() * 3)];
+            var r = u === m ? 'd' : ((u === 'bua' && m === 'keo') || (u === 'bao' && m === 'bua') || (u === 'keo' && m === 'bao')) ? 'w' : 'l';
+            troKeoBuaBao[r]++;
+            document.getElementById('rpsRes').textContent = 'Bạn ' + ic[u] + ' - Máy ' + ic[m] + ' → ' + (r === 'w' ? 'Bạn thắng!' : r === 'l' ? 'Máy thắng!' : 'Hòa!');
+            document.getElementById('rpsStat').textContent = 'Thắng ' + troKeoBuaBao.w + ' · Thua ' + troKeoBuaBao.l + ' · Hòa ' + troKeoBuaBao.d;
+        }
+
+        // Đoán số
+        var troDoanSo = { n: 0, left: 7, over: true };
+        function doanSoMoi() {
+            troDoanSo.n = 1 + Math.floor(Math.random() * 100); troDoanSo.left = 7; troDoanSo.over = false;
+            document.getElementById('guessMsg').textContent = 'Mình đã nghĩ ra một số từ 1 đến 100. Bạn có 7 lượt!';
+            document.getElementById('guessInput').value = '';
+        }
+        function doanSoThu() {
+            if (troDoanSo.over) { doanSoMoi(); return; }
+            var inp = document.getElementById('guessInput'), v = parseInt(inp.value, 10), m = document.getElementById('guessMsg');
+            if (isNaN(v) || v < 1 || v > 100) { hienThongBao('Nhập số từ 1 đến 100 nhé!', true); return; }
+            troDoanSo.left--;
+            if (v === troDoanSo.n) { troDoanSo.over = true; m.textContent = 'Đúng rồi! Số đó là ' + troDoanSo.n + '.'; banPhaoGiay(); }
+            else if (troDoanSo.left <= 0) { troDoanSo.over = true; m.textContent = 'Hết lượt! Số đúng là ' + troDoanSo.n + '.'; }
+            else m.textContent = (v < troDoanSo.n ? '⬆ Số cần tìm LỚN hơn ' : '⬇ Số cần tìm NHỎ hơn ') + v + '. Còn ' + troDoanSo.left + ' lượt.';
+            inp.value = '';
+        }
+
+        // Đập chuột
+        var troChuot = { t: null, pos: -1, score: 0, ticks: 0 };
+        function chuotVe() {
+            var h = '';
+            for (var i = 0; i < 9; i++) h += '<button class="hole" onclick="chuotDap(' + i + ')">' + (troChuot.pos === i ? '🐹' : '') + '</button>';
+            document.getElementById('moleGrid').innerHTML = h;
+        }
+        function chuotThongTin() {
+            document.getElementById('moleStat').textContent = '⏱ ' + Math.max(0, Math.ceil((30 - troChuot.ticks) * 0.65)) + 's · 🔨 ' + troChuot.score;
+        }
+        function chuotDap(i) {
+            if (!troChuot.t || troChuot.pos !== i) return;
+            troChuot.score++; troChuot.pos = -1; chuotVe(); chuotThongTin();
+        }
+        function chuotBatDau() {
+            if (troChuot.t) return;
+            troChuot.score = 0; troChuot.ticks = 0; troChuot.pos = -1; chuotThongTin();
+            troChuot.t = setInterval(function() {
+                troChuot.ticks++;
+                if (troChuot.ticks >= 30) {
+                    clearInterval(troChuot.t); troChuot.t = null; troChuot.pos = -1; chuotVe();
+                    document.getElementById('moleStat').textContent = 'Hết giờ! Bạn đập được ' + troChuot.score + ' chú chuột!';
+                    if (troChuot.score >= 10) banPhaoGiay();
+                    return;
+                }
+                var p;
+                do { p = Math.floor(Math.random() * 9); } while (p === troChuot.pos);
+                troChuot.pos = p; chuotVe(); chuotThongTin();
+            }, 650);
+        }
+
+        // Rắn săn mồi
+        var troRan = { t: null, d: [1, 0], nd: [1, 0], body: [], food: null, score: 0 };
+        function ranVe() {
+            var cv = document.getElementById('snakeCv'), c = cv.getContext('2d'), cs = getComputedStyle(document.body), C = 20;
+            c.fillStyle = cs.getPropertyValue('--bg-color').trim() || '#eee';
+            c.fillRect(0, 0, 320, 320);
+            if (troRan.food) { c.font = '18px serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('🍎', troRan.food[0] * C + 10, troRan.food[1] * C + 11); }
+            c.fillStyle = cs.getPropertyValue('--primary-color').trim() || '#4f46e5';
+            troRan.body.forEach(function(p, i) { c.globalAlpha = i ? 0.75 : 1; c.fillRect(p[0] * C + 1, p[1] * C + 1, C - 2, C - 2); });
+            c.globalAlpha = 1;
+        }
+        function ranThucAn() {
+            var f;
+            do { f = [Math.floor(Math.random() * 16), Math.floor(Math.random() * 16)]; }
+            while (troRan.body.some(function(p) { return p[0] === f[0] && p[1] === f[1]; }));
+            troRan.food = f;
+        }
+        function ranBatDau() {
+            clearInterval(troRan.t);
+            troRan.body = [[8, 8], [7, 8], [6, 8]]; troRan.d = [1, 0]; troRan.nd = [1, 0]; troRan.score = 0;
+            ranThucAn(); ranVe();
+            document.getElementById('snakeStat').textContent = 'Điểm: 0';
+            troRan.t = setInterval(function() {
+                var h = [troRan.body[0][0] + troRan.nd[0], troRan.body[0][1] + troRan.nd[1]];
+                troRan.d = troRan.nd;
+                if (h[0] < 0 || h[1] < 0 || h[0] >= 16 || h[1] >= 16 || troRan.body.some(function(p) { return p[0] === h[0] && p[1] === h[1]; })) {
+                    clearInterval(troRan.t); troRan.t = null;
+                    document.getElementById('snakeStat').textContent = 'Thua rồi! Điểm của bạn: ' + troRan.score;
+                    return;
+                }
+                troRan.body.unshift(h);
+                if (h[0] === troRan.food[0] && h[1] === troRan.food[1]) {
+                    troRan.score++; ranThucAn();
+                    document.getElementById('snakeStat').textContent = 'Điểm: ' + troRan.score;
+                } else troRan.body.pop();
+                ranVe();
+            }, 130);
+        }
+        function ranDoiHuong(dx, dy) {
+            if (troRan.d[0] + dx === 0 && troRan.d[1] + dy === 0) return;
+            troRan.nd = [dx, dy];
+        }
+        document.addEventListener('keydown', function(e) {
+            if (!troRan.t) return;
+            var m = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+            if (m) { e.preventDefault(); ranDoiHuong(m[0], m[1]); }
+        });
+
+        // ---------- Cá nhân & kết bạn ----------
+        function layBanBe() { try { return JSON.parse(localStorage.getItem('minispace_social') || '{}'); } catch (e) { return {}; } }
+        function chuanHoaBanBe(o) { o.friends = o.friends || {}; o.reqs = o.reqs || []; return o; }
+        function luuBanBe(o) { localStorage.setItem('minispace_social', JSON.stringify(o)); }
+        function layHoSo() { try { return JSON.parse(localStorage.getItem('minispace_profiles') || '{}'); } catch (e) { return {}; } }
+        function tatCaNguoiDung() { return Object.keys(JSON.parse(localStorage.getItem('minispace_users') || '{}')); }
+
+        function capNhatHuyHieu() {
+            var me = tenNguoiDungHienTai, so = chuanHoaBanBe(layBanBe());
+            var n = so.reqs.filter(function(r) { return r.t === me; }).length;
+            document.getElementById('tabMe').innerHTML = 'Cá nhân' + (n ? '<span class="badge">' + n + '</span>' : '');
+            return n;
+        }
+        var soLoiMoiCu = capNhatHuyHieu();
+
+        function demKyTuBio() {
+            document.getElementById('meDemKyTu').textContent = document.getElementById('meBio').value.length + '/150';
+        }
+
+        function luuGioiThieu() {
+            var pf = layHoSo(), me = tenNguoiDungHienTai;
+            pf[me] = pf[me] || {};
+            pf[me].bio = document.getElementById('meBio').value.trim();
+            localStorage.setItem('minispace_profiles', JSON.stringify(pf));
+            hienThongBao('Đã lưu giới thiệu');
+        }
+
+        function veCaNhan() {
+            var me = tenNguoiDungHienTai, so = chuanHoaBanBe(layBanBe()), pf = layHoSo();
+            document.getElementById('meAvatar').textContent = (me[0] || '?').toUpperCase();
+            document.getElementById('meName').innerHTML = thoatHtml(me) + (laAdmin() ? '<span class="the-admin">Quản trị viên</span>' : '');
+            document.getElementById('meBio').value = (pf[me] && pf[me].bio) || '';
+            demKyTuBio();
+            var fr = so.friends[me] || [];
+            document.getElementById('meStat').textContent = '' + fr.length + ' bạn bè';
+            var dsMau = ['#4f46e5', '#ec4899', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6', '#ef4444'];
+            var tongMa = 0;
+            for (var k = 0; k < me.length; k++) tongMa += me.charCodeAt(k);
+            document.getElementById('meAvatar').style.background = dsMau[tongMa % dsMau.length];
+            pf[me] = pf[me] || {};
+            if (!pf[me].joined) { pf[me].joined = Date.now(); localStorage.setItem('minispace_profiles', JSON.stringify(pf)); }
+            var soBaiCuaToi = 0, soBaiDaLuu = 0;
+            for (var k = 0; k < danhSachBai.length; k++) {
+                if (danhSachBai[k].author === me && !danhSachBai[k].isAnonymous) soBaiCuaToi++;
+                if (danhSachBai[k].isSaved) soBaiDaLuu++;
+            }
+            var ngayThamGia = new Date(pf[me].joined).toLocaleDateString('vi-VN');
+            document.getElementById('meThongKe').innerHTML =
+                '<div class="ho-so-o"><b>' + fr.length + '</b><span>Bạn bè</span></div>' +
+                '<div class="ho-so-o"><b>' + soBaiCuaToi + '</b><span>Bài viết</span></div>' +
+                '<div class="ho-so-o"><b>' + soBaiDaLuu + '</b><span>Đã lưu</span></div>' +
+                '<div class="ho-so-o"><b style="font-size:15px">' + ngayThamGia + '</b><span>Tham gia</span></div>';
+            var rq = so.reqs.filter(function(r) { return r.t === me; }), h = '';
+            rq.forEach(function(r) {
+                h += '<div class="frow"><strong>' + thoatHtml(r.f) + '</strong><span><button class="chip active" onclick="chapNhanLoiMoi(decodeURIComponent(\'' + maHoaTen(r.f) + '\'))">✔ Chấp nhận</button> <button class="chip" onclick="tuChoiLoiMoi(decodeURIComponent(\'' + maHoaTen(r.f) + '\'))">✖</button></span></div>';
+            });
+            document.getElementById('meReqs').innerHTML = h || '<p class="note">Chưa có lời mời nào.</p>';
+            h = '';
+            fr.forEach(function(f) {
+                var bio = (pf[f] && pf[f].bio) || '';
+                h += '<div class="frow"><div><strong>' + thoatHtml(f) + '</strong>' + (bio ? '<small>' + thoatHtml(bio) + '</small>' : '') + '</div><span><button class="chip active" onclick="moTinNhan(decodeURIComponent(\'' + maHoaTen(f) + '\'))">Nhắn tin</button> <button class="chip" onclick="huyKetBan(decodeURIComponent(\'' + maHoaTen(f) + '\'))">Hủy kết bạn</button></span></div>';
+            });
+            document.getElementById('meFriends').innerHTML = h || '<p class="note">Bạn chưa có bạn bè. Hãy kết bạn ở bên dưới nhé!</p>';
+            veNguoiDung();
+            capNhatHuyHieu();
+        }
+
+        function veNguoiDung() {
+            var me = tenNguoiDungHienTai, so = chuanHoaBanBe(layBanBe()), kw = boDau(document.getElementById('friendSearch').value.trim()), h = '';
+            var fr = so.friends[me] || [];
+            tatCaNguoiDung().forEach(function(u) {
+                if (u === me || (kw && boDau(u).indexOf(kw) < 0)) return;
+                var st;
+                if (fr.indexOf(u) > -1) st = '<span class="note" style="margin:0">✅ Bạn bè</span>';
+                else if (so.reqs.some(function(r) { return r.f === me && r.t === u; })) st = '<span class="note" style="margin:0">Đã gửi lời mời</span>';
+                else if (so.reqs.some(function(r) { return r.f === u && r.t === me; })) st = '<button class="chip active" onclick="chapNhanLoiMoi(decodeURIComponent(\'' + maHoaTen(u) + '\'))">✔ Chấp nhận</button>';
+                else st = '<button class="chip active" onclick="guiLoiMoi(decodeURIComponent(\'' + maHoaTen(u) + '\'))">Kết bạn</button>';
+                h += '<div class="frow"><strong>' + thoatHtml(u) + '</strong>' + st + '</div>';
+            });
+            document.getElementById('mePeople').innerHTML = h || '<p class="note">Chưa có thành viên nào khác.</p>';
+        }
+
+        function guiLoiMoi(u) {
+            var me = tenNguoiDungHienTai, so = chuanHoaBanBe(layBanBe());
+            if ((so.friends[me] || []).indexOf(u) > -1) { hienThongBao('Hai bạn đã là bạn bè rồi!'); return; }
+            if (so.reqs.some(function(r) { return r.f === me && r.t === u; })) { hienThongBao('Bạn đã gửi lời mời rồi!'); return; }
+            so.reqs.push({ f: me, t: u }); luuBanBe(so);
+            hienThongBao('Đã gửi lời mời kết bạn tới ' + u);
+            veCaNhan();
+        }
+        function chapNhanLoiMoi(u) {
+            var me = tenNguoiDungHienTai, so = chuanHoaBanBe(layBanBe());
+            so.reqs = so.reqs.filter(function(r) { return !((r.f === u && r.t === me) || (r.f === me && r.t === u)); });
+            so.friends[me] = so.friends[me] || []; so.friends[u] = so.friends[u] || [];
+            if (so.friends[me].indexOf(u) < 0) so.friends[me].push(u);
+            if (so.friends[u].indexOf(me) < 0) so.friends[u].push(me);
+            luuBanBe(so); banPhaoGiay(); hienThongBao('Bạn và ' + u + ' đã là bạn bè!');
+            veCaNhan();
+        }
+        function tuChoiLoiMoi(u) {
+            var me = tenNguoiDungHienTai, so = chuanHoaBanBe(layBanBe());
+            so.reqs = so.reqs.filter(function(r) { return !(r.f === u && r.t === me); });
+            luuBanBe(so); veCaNhan();
+        }
+        function huyKetBan(u) {
+            if (!confirm('Hủy kết bạn với ' + u + '?')) return;
+            var me = tenNguoiDungHienTai, so = chuanHoaBanBe(layBanBe());
+            so.friends[me] = (so.friends[me] || []).filter(function(x) { return x !== u; });
+            so.friends[u] = (so.friends[u] || []).filter(function(x) { return x !== me; });
+            luuBanBe(so); veCaNhan();
+        }
+
+        // ---------- Nhắn toàn cầu (công khai) ----------
+        function layToanCau() { try { return JSON.parse(localStorage.getItem('minispace_global') || '[]'); } catch (e) { return []; } }
+
+        function veToanCau() {
+            var hop = document.getElementById('toanCauHop'), ds = layToanCau(), chuoi = '';
+            ds.forEach(function(tin) {
+                var laToi = tin.f === tenNguoiDungHienTai;
+                chuoi += '<div class="msg ' + (laToi ? 'me' : 'bot') + '"><small><b>' + thoatHtml(tin.f) + (tin.f === TEN_ADMIN ? ' (Admin)' : '') + '</b></small>' + thoatHtml(tin.t) + '<small>' + gioPhut(tin.ts) + '</small></div>';
+            });
+            hop.innerHTML = chuoi || '<p class="note">Chưa có tin nhắn nào. Hãy là người đầu tiên!</p>';
+            hop.scrollTop = hop.scrollHeight;
+        }
+
+        function guiToanCau() {
+            var o = document.getElementById('toanCauO'), noiDung = o.value.trim();
+            if (!noiDung) return;
+            if (thoTuc(noiDung).length) { hienThongBao('Tin nhắn có từ ngữ thô tục nên không thể gửi!', true); return; }
+            var ds = layToanCau();
+            ds.push({ f: tenNguoiDungHienTai, t: noiDung, ts: Date.now() });
+            localStorage.setItem('minispace_global', JSON.stringify(ds.slice(-300)));
+            o.value = '';
+            veToanCau();
+        }
+
+        // ---------- Nhắn tin ----------
+        var dangNhanVoi = null, tinNhanDaXem = Date.now();
+        function layTinNhan() { try { return JSON.parse(localStorage.getItem('minispace_dm') || '{}'); } catch (e) { return {}; } }
+        function khoaTinNhan(a, b) { return [a, b].sort().join('|'); }
+
+        function veTinNhan() {
+            var me = tenNguoiDungHienTai, fr = chuanHoaBanBe(layBanBe()).friends[me] || [], h = '';
+            if (fr.indexOf(dangNhanVoi) < 0) dangNhanVoi = fr[0] || null;
+            fr.forEach(function(f) {
+                h += '<button class="chip' + (f === dangNhanVoi ? ' active' : '') + '" onclick="dmWith=decodeURIComponent(\'' + maHoaTen(f) + '\');veTinNhan()">' + thoatHtml(f) + '</button>';
+            });
+            document.getElementById('dmFriends').innerHTML = h;
+            document.getElementById('dmEmpty').textContent = fr.length ? '' : 'Bạn chưa có bạn bè nào. Vào mục Cá nhân để kết bạn nhé!';
+            document.getElementById('dmArea').style.display = dangNhanVoi ? 'block' : 'none';
+            if (!dangNhanVoi) return;
+            document.getElementById('dmWithTxt').textContent = 'Đang trò chuyện với ' + dangNhanVoi;
+            var ms = layTinNhan()[khoaTinNhan(me, dangNhanVoi)] || [], box = document.getElementById('dmBox');
+            box.innerHTML = ms.map(function(m) {
+                return '<div class="msg ' + (m.f === me ? 'me' : 'bot') + '">' + thoatHtml(m.t) + '<small>' + gioPhut(m.ts) + '</small></div>';
+            }).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function guiTinNhan() {
+            var inp = document.getElementById('dmInput'), t = inp.value.trim(), me = tenNguoiDungHienTai;
+            if (!t || !dangNhanVoi) return;
+            var dm = layTinNhan(), k = khoaTinNhan(me, dangNhanVoi);
+            dm[k] = dm[k] || [];
+            dm[k].push({ f: me, t: t, ts: Date.now() });
+            dm[k] = dm[k].slice(-200);
+            localStorage.setItem('minispace_dm', JSON.stringify(dm));
+            inp.value = '';
+            veTinNhan();
+        }
+
+        function moTinNhan(name) {
+            dangNhanVoi = name;
+            chuyenMuc('dm', document.getElementById('tabDm'));
+        }
+
+        var _chuyenMucGoc3 = chuyenMuc;
+        chuyenMuc = function(t, b) {
+            _chuyenMucGoc3(t, b);
+            ['me', 'dm', 'global'].forEach(function(id) { document.getElementById('panel-' + id).style.display = (t === id) ? 'block' : 'none'; });
+            if (t !== 'games') dungMoiTroChoi();
+            if (t === 'me') veCaNhan();
+            if (t === 'dm') veTinNhan();
+            if (t === 'global') veToanCau();
+        };
+        var _chaoMungGoc2 = chaoMung;
+        chaoMung = function() { _chaoMungGoc2(); soLoiMoiCu = capNhatHuyHieu(); };
+
+        window.addEventListener('storage', function(e) {
+            if (!tenNguoiDungHienTai) return;
+            var me = tenNguoiDungHienTai;
+            if (e.key === 'minispace_global' && dangHien('panel-global')) veToanCau();
+            if (e.key === 'minispace_social') {
+                var n = capNhatHuyHieu();
+                if (n > soLoiMoiCu) hienThongBao('Bạn có lời mời kết bạn mới!');
+                soLoiMoiCu = n;
+                if (dangHien('panel-me')) veCaNhan();
+                if (dangHien('panel-dm')) veTinNhan();
+            }
+            if (e.key === 'minispace_dm') {
+                var dm = layTinNhan();
+                Object.keys(dm).forEach(function(k) {
+                    var ps = k.split('|');
+                    if (ps.indexOf(me) < 0) return;
+                    var other = ps[0] === me ? ps[1] : ps[0], last = dm[k][dm[k].length - 1];
+                    if (last && last.f !== me && last.ts > tinNhanDaXem) {
+                        tinNhanDaXem = last.ts;
+                        if (dangHien('panel-dm') && dangNhanVoi === other) veTinNhan();
+                        else hienThongBao('Tin nhắn mới từ ' + other);
+                    }
+                });
+            }
+        });
+
+
+        var TIEU_DE_MUC = { all: 'Bảng tin', anonymous: 'Ẩn danh', saved: 'Đã lưu', games: 'Trò chơi', books: 'Đọc sách', chat: 'Tâm sự', dm: 'Nhắn tin', global: 'Toàn cầu', me: 'Cá nhân' };
+        var TIEU_DE_GAME = { ttt: 'Cờ O X', duck: 'Đua vịt', mem: 'Lật thẻ', rps: 'Kéo búa bao', guess: 'Đoán số', mole: 'Đập chuột', snake: 'Rắn săn mồi', chess: 'Cờ vua' };
+        var coTroChoi = 'ttt';
+        function datTieuDe(s) { document.title = 'MiniSpace - ' + s; }
+        function capNhatTieuDe() {
+            if (mucHienTai === 'games') datTieuDe('Trò chơi - ' + TIEU_DE_GAME[coTroChoi]);
+            else datTieuDe(TIEU_DE_MUC[mucHienTai] || 'Bảng tin');
+        }
+        var _chuyenMucGoc4 = chuyenMuc;
+        chuyenMuc = function (t, b) { _chuyenMucGoc4(t, b); capNhatTieuDe(); };
+        var _hienTroChoiGoc = hienTroChoi;
+        hienTroChoi = function (g, b) { _hienTroChoiGoc(g, b); coTroChoi = g; capNhatTieuDe(); if (g === 'chess') coVeLanDau(); };
+        var _docSachGoc = docSach;
+        docSach = function (id) { _docSachGoc(id); datTieuDe('Đọc sách - ' + document.getElementById('readerTitle').textContent); };
+        var _dongSachGoc = dongSach;
+        dongSach = function () { _dongSachGoc(); datTieuDe('Đọc sách'); };
+        var _doiCheDoAuthGoc = doiCheDoAuth;
+        doiCheDoAuth = function () { _doiCheDoAuthGoc(); datTieuDe(laTrangDangKy ? 'Đăng ký' : 'Đăng nhập'); };
+        var _dangXuatGoc = dangXuat;
+        dangXuat = function () { _dangXuatGoc(); datTieuDe('Đăng ký'); };
+        var _chaoMungGoc3 = chaoMung;
+        chaoMung = function () { _chaoMungGoc3(); capNhatTieuDe(); };
+        if (nguoiDungDaLuu !== null) capNhatTieuDe(); else datTieuDe('Đăng ký');
+
+        var _dangBaiGoc = dangBai;
+        dangBai = function () {
+            var a = document.getElementById('postInput'), i = document.getElementById('imageUrlInput');
+            a.value = thoatHtml(a.value); i.value = thoatHtml(i.value);
+            _dangBaiGoc();
+        };
+        var _themBinhLuanGoc = themBinhLuan;
+        themBinhLuan = function (id) {
+            var x = document.getElementById('comment-input-' + id);
+            if (x) x.value = thoatHtml(x.value);
+            _themBinhLuanGoc(id);
+        };
+        var _xuLyAuthGoc = xuLyDangKyHoacDangNhap;
+        xuLyDangKyHoacDangNhap = function () {
+            if (laTrangDangKy && /[<>&"'`\\]/.test(document.getElementById('usernameInput').value)) {
+                alert('Tên tài khoản không được chứa các ký tự < > & " \' ` \\');
+                return;
+            }
+            _xuLyAuthGoc();
+        };
+
+        try {
+            var baiDaLuu = JSON.parse(localStorage.getItem('minispace_posts') || 'null');
+            if (baiDaLuu instanceof Array) danhSachBai = baiDaLuu;
+        } catch (e) {}
+        var _veBaiDangGoc = veBaiDang;
+        veBaiDang = function () {
+            _veBaiDangGoc();
+            try { localStorage.setItem('minispace_posts', JSON.stringify(danhSachBai)); } catch (e) {}
+        };
+        if (nguoiDungDaLuu !== null) veBaiDang();
+    </script>
+</body>
+</html>
