@@ -10,7 +10,6 @@
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, onValue, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
         apiKey: "AIzaSyDpSEq8XDor6ApYUfJrZgEMsPM5ElDunUY",
         authDomain: "minispace-b8fb7.firebaseapp.com",
@@ -37,7 +36,6 @@
         });
     </script>
     <style>
-        /* Chấm trạng thái Online / Offline */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -89,8 +87,6 @@
             padding: 0;
             transition: background-color 0.3s, color 0.3s;
         }
-
-        /* MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (TO BỰ, THOÁNG) */
         #authScreen {
             display: flex;
             justify-content: center;
@@ -192,8 +188,6 @@
             color: var(--primary-color);
             font-weight: bold;
         }
-
-        /* ỨNG DỤNG CHÍNH (Ẩn đi trước khi đăng nhập) */
         #appScreen {
             display: none;
         }
@@ -531,7 +525,6 @@
         .post-summary{font-size:12px;color:var(--text-secondary);padding:5px 2px}
         .post-admin-actions{display:flex;gap:6px}
 
-        /* ===== HIỆU ỨNG ĐỘNG ===== */
         button{position:relative;overflow:hidden}
         #authScreen,#appScreen{position:relative;z-index:1}
         .bubbles{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
@@ -606,7 +599,6 @@
         @media(max-width:700px){.cap-chip .cap-bar{display:none}.auth-card{width:92vw;padding:36px 22px}}
         @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
-        /* ===== MỤC MỚI: GAME / SÁCH / TÂM SỰ ===== */
         .nav-tabs{flex-wrap:wrap}.tab-btn{flex:1 1 30%}
         .panel{display:none;animation:cardIn .4s}
         .box{background:var(--card-bg);border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(79,70,229,.12)}
@@ -651,7 +643,6 @@
         .chat-input button{background:var(--primary-color);color:#fff;border:none;padding:0 18px;border-radius:8px;font-weight:bold;cursor:pointer}
         body.incognito .chat-input button{color:#0f172a}
 
-        /* ===== BẢN CẬP NHẬT: TAB NGANG, ZOOM 110%, GAME MỚI, BẠN BÈ ===== */
         .container{max-width:780px}
         .nav-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
         .nav-tabs::-webkit-scrollbar{display:none}
@@ -697,12 +688,27 @@
         .mcard{font-size:20px;font-weight:bold}
         .heart-fly{font-size:16px;font-weight:bold;color:#ef4444}
     </style>
+    <style>
+        .mini-av{width:28px;height:28px;border-radius:50%;flex-shrink:0;background:var(--primary-color) center/cover no-repeat;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer}
+        .mini-av.big{width:96px;height:96px;font-size:36px;cursor:default;margin:0 auto 10px}
+        .row{display:flex;align-items:flex-end;gap:6px;max-width:92%}
+        .row.me{align-self:flex-end}
+        .row.bot{align-self:flex-start}
+        .row .msg{max-width:100%}
+        .day-sep{align-self:center;font-size:11px;color:var(--text-secondary);background:var(--card-bg);padding:2px 12px;border-radius:999px}
+        [data-uid]{cursor:pointer}
+        .msg.vip{box-shadow:0 0 0 2px #fbbf24,0 4px 14px rgba(251,191,36,.45)}
+        .msg.vip-admin{background:linear-gradient(135deg,#f59e0b,#ef4444)!important;color:#fff}
+        .msg.vip-vip{background:linear-gradient(135deg,#6366f1,#a855f7)!important;color:#fff}
+        .msg.vip-star{background:linear-gradient(135deg,#fde68a,#fbbf24)!important;color:#78350f}
+        .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:none;align-items:center;justify-content:center}
+        .modal-card{background:var(--card-bg);border-radius:16px;padding:24px;width:min(360px,90vw);text-align:center}
+    </style>
 </head>
 <body>
     <div class="bubbles" id="bubbles"></div>
     <div id="toasts"></div>
 
-    <!-- ================= MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ ================= -->
     <div id="authScreen">
         <div class="auth-card">
             <h2 id="authTitle">Đăng Ký Tài Khoản</h2>
@@ -733,7 +739,6 @@
     </div>
 
 
-    <!-- ================= MÀN HÌNH ỨNG DỤNG CHÍNH ================= -->
     <div id="appScreen">
         <header>
             <h1 class="logo">MiniSpace</h1>
@@ -778,7 +783,6 @@
                 </div>
             </section>
 
-            <!-- ===== TRÒ CHƠI ===== -->
             <section class="panel" id="panel-games">
                 <div class="box">
                     <h3>Phòng trò chơi</h3>
@@ -823,7 +827,6 @@
                 <div class="box" id="game-snake" style="display:none;"><h3>Rắn săn mồi</h3><p class="note">Dùng phím mũi tên hoặc các nút bên dưới để điều khiển.</p><div class="ttt-status" id="snakeStat">Bấm bắt đầu!</div><canvas id="snakeCv" width="320" height="320"></canvas><div class="chips" style="justify-content:center"><button class="chip" onclick="ranDoiHuong(0,-1)">⬆</button><button class="chip" onclick="ranDoiHuong(-1,0)">⬅</button><button class="chip" onclick="ranDoiHuong(0,1)">⬇</button><button class="chip" onclick="ranDoiHuong(1,0)">➡</button></div><div style="text-align:center"><button class="chip active" onclick="ranBatDau()">▶ Bắt đầu</button></div></div>
             </section>
 
-            <!-- ===== ĐỌC SÁCH ===== -->
             <section class="panel" id="panel-books">
                 <div class="box" id="bookList">
                     <h3>Thư viện sách</h3>
@@ -850,7 +853,6 @@
                 </div>
             </section>
 
-            <!-- ===== TÂM SỰ ===== -->
             <section class="panel" id="panel-chat">
                 <div class="box">
                     <h3>Góc tâm sự cùng Mây </h3>
@@ -870,7 +872,6 @@
                 </div>
             </section>
 
-            <!-- ===== CÁ NHÂN ===== -->
             <section class="panel" id="panel-me">
                 <div class="box">
                     <div class="ho-so-bia"></div>
@@ -894,7 +895,6 @@
                 <div class="box"><h3>Kết bạn</h3><input id="friendSearch" class="f-input" placeholder="Tìm tên thành viên..." onkeyup="veNguoiDung()"><div id="mePeople"></div></div>
             </section>
 
-            <!-- ===== NHẮN TOÀN CẦU ===== -->
             <section class="panel" id="panel-global">
                 <div class="box">
                     <h3>Nhắn toàn cầu</h3>
@@ -907,7 +907,6 @@
                 </div>
             </section>
 
-            <!-- ===== NHẮN TIN ===== -->
             <section class="panel" id="panel-dm">
                 <div class="box">
                     <h3>Nhắn tin với bạn bè</h3>
@@ -931,8 +930,9 @@
 
     <button id="toTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Lên đầu trang">⬆</button>
 
-    <!-- ================= JAVASCRIPT CƠ BẢN ================= -->
-
+    <div id="hoSoModal" class="modal-bg" onclick="if(event.target===this)this.style.display='none'">
+        <div class="modal-card" id="hoSoNoiDung"></div>
+    </div>
     <script>
         var laTrangDangKy = true;
         var maOtpTamThoi = "";
@@ -951,7 +951,6 @@
         var mucHienTai = 'all';
         var chayHieuUng = true, idBaiMoi = null;
 
-        // 1. HÀM TẠO MÃ 8 SỐ KHÔNG TRÙNG LẶP TRONG CÙNG MỘT MÃ
         function taoMa8So() {
             var khoSo = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
             var maCode = "";
@@ -964,7 +963,6 @@
             return maCode;
         }
 
-        // 2. Nút Copy mã OTP
         function saoChepOtp() {
             var maOtp = document.getElementById("generatedOtpText").innerText;
             navigator.clipboard.writeText(maOtp).then(function() {
@@ -972,7 +970,6 @@
             });
         }
 
-        // 3. Chuyển qua lại giữa Đăng ký và Đăng nhập
         function doiCheDoAuth() {
             laTrangDangKy = !laTrangDangKy;
             var title = document.getElementById("authTitle");
@@ -982,7 +979,6 @@
             var otpBox = document.getElementById("otpBox");
             var otpInput = document.getElementById("otpInput");
 
-            // Reset ẩn khung OTP khi chuyển chế độ
             otpBox.style.display = "none";
             otpInput.style.display = "none";
             otpInput.value = "";
@@ -1002,7 +998,6 @@
 
         function xuLyDangKyHoacDangNhap() {}
 
-        // 5. Đăng xuất
         function dangXuat() {
             localStorage.removeItem('minispace_current_user');
             capNhatSoThanhVien();
@@ -1020,7 +1015,6 @@
             document.getElementById("switchAuthText").innerHTML = "Đã có tài khoản? <span>Đăng nhập ngay</span>";
         }
 
-        // --- CÁC HÀM XỬ LÝ MẠNG XÃ HỘI ---
         function batTatONhapAnh() {
             var wrap = document.getElementById('imageInputWrap');
             wrap.style.display = (wrap.style.display === 'block') ? 'none' : 'block';
@@ -1234,12 +1228,10 @@
             }
         }
 
-        // Nếu đã có dữ liệu đăng nhập từ trước, tự động vẽ bảng tin luôn
         if (nguoiDungDaLuu !== null) {
             veBaiDang();
         }
 
-        // ================= HIỆU ỨNG & THỐNG KÊ THÀNH VIÊN =================
         function demThanhVien() {
             return typeof danhSachNguoiDungCloud === 'undefined' ? 0 : danhSachNguoiDungCloud.length;
         }
@@ -1261,7 +1253,6 @@
             setTimeout(function() { t.remove(); }, 3700);
         }
 
-        // Thay hộp thoại alert cũ bằng thông báo trượt đẹp mắt
         window.alert = function(msg) {
             var err = /không|chưa|tồn tại|đủ|Vui lòng/.test(msg);
             hienThongBao(msg, err);
@@ -1339,7 +1330,6 @@
             hienThongBao(document.body.classList.contains('incognito') ? 'Đã vào chế độ Ẩn danh' : 'Đã thoát chế độ Ẩn danh');
         };
 
-        // Bong bóng bay nền
         (function() {
             var w = document.getElementById('bubbles');
             for (var i = 0; i < 16; i++) {
@@ -1352,7 +1342,6 @@
             }
         })();
 
-        // Hiệu ứng gợn sóng khi bấm nút
         document.addEventListener('click', function(e) {
             var b = e.target.closest('button');
             if (!b || b.id === 'toTop') return;
@@ -1365,12 +1354,10 @@
             setTimeout(function() { s.remove(); }, 600);
         });
 
-        // Nút lên đầu trang
         window.addEventListener('scroll', function() {
             document.getElementById('toTop').classList.toggle('show', window.scrollY > 300);
         });
 
-        // Gợi ý đổi liên tục trong ô đăng bài
         var phs = ['Bạn đang nghĩ gì thế? Chia sẻ ngay... ', 'Hôm nay có gì vui không? ', 'Thử đăng một bài ẩn danh xem ', 'Chia sẻ khoảnh khắc đẹp nào '], pi = 0;
         setInterval(function() {
             pi = (pi + 1) % phs.length;
@@ -1380,11 +1367,9 @@
         capNhatSoThanhVien();
         if (nguoiDungDaLuu !== null) hienThongBao('Chào mừng trở lại, ' + nguoiDungDaLuu + '!');
 
-        // ================= MỤC MỚI: TRÒ CHƠI / SÁCH / TÂM SỰ =================
         function thoatHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
         function boDau(s) { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd'); }
 
-        // Chuyển mục
         var _chuyenMucGoc2 = chuyenMuc;
         chuyenMuc = function(t, b) {
             _chuyenMucGoc2(t, b);
@@ -1411,7 +1396,6 @@
             btn.classList.add('active');
         }
 
-        // ---------- CỜ O X ----------
         var CAC_DUONG_THANG = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
         var idTab = Math.random().toString(36).slice(2);
         var troCoOX = { b: Array(9).fill(''), turn: 'X', over: false, win: null, mode: 'ai', my: 'X', room: null, X: null, O: null };
@@ -1549,7 +1533,6 @@
             }
         });
 
-        // ---------- ĐUA VỊT ----------
         var MAU_VIT = ['#f59e0b', '#06b6d4', '#ec4899', '#8b5cf6', '#10b981'];
         var vitDaChon = -1, vitDongHo = null, vitViTri = [0, 0, 0, 0, 0], vitThongKe = { w: 0, l: 0 };
 
@@ -1602,7 +1585,6 @@
             document.getElementById('duckStat').textContent = 'Chiến tích: ' + vitThongKe.w + ' lần đúng · ' + vitThongKe.l + ' lần sai';
         }
 
-        // ---------- ĐỌC SÁCH ----------
         var sachMacDinh = [
             {
                 id: 'mac1', fixed: true, title: 'Hướng dẫn thêm sách', author: 'MiniSpace',
@@ -1681,7 +1663,6 @@
             document.getElementById('readerText').style.fontSize = coChuSach + 'px';
         }
 
-        // ---------- TÂM SỰ VỚI MÂY ----------
         var tamSuDangBan = false, tamSuCuoi = '';
         var VIET_TAT = { ko:'khong', kh:'khong', k:'khong', hok:'khong', hong:'khong', khum:'khong', j:'gi', dc:'duoc', dk:'duoc', r:'roi', mik:'minh', mk:'minh', ntn:'nhu the nao', bt:'binh thuong', vs:'voi', cx:'cung', ng:'nguoi', buoon:'buon' };
         function chuanHoa(t) {
@@ -1797,13 +1778,11 @@
         vitDungDuong();
         oxBatDau();
 
-        // ================= BẢN CẬP NHẬT =================
         function heSoPhongTo() { return window.innerWidth >= 900 ? 1.1 : 1; }
         function dangHien(id) { return document.getElementById(id).style.display === 'block'; }
         function maHoaTen(n) { return encodeURIComponent(n).replace(/'/g, '%27'); }
         function gioPhut(ts) { return new Date(ts).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }); }
 
-        // ---------- Kiểm duyệt từ thô tục ----------
         var THO_TUC = ['cặc', 'lồn', 'địt', 'đĩ', 'đụ', 'buồi', 'đéo', 'đmm', 'dmm', 'đcm', 'dcm', 'vcl', 'vkl'];
         function thoTuc(text) {
             var found = [], toks = text.normalize('NFC').toLowerCase().split(/[^\p{L}\p{N}]+/u);
@@ -1826,7 +1805,6 @@
             _luuSachGoc();
         };
 
-        // ---------- Đua vịt: sửa hướng & chạm đích ----------
         vitDiChuyen = function() {
             var tr = document.getElementById('duckTrack'), W = tr.clientWidth;
             if (!W) return;
@@ -1837,7 +1815,6 @@
             }
         };
 
-        // ---------- Cờ O X: tạo phòng / vào phòng bằng mã ----------
         var _oxBatDauGoc = oxBatDau;
         oxBatDau = function() {
             _oxBatDauGoc();
@@ -1874,7 +1851,6 @@
             hienThongBao('Đã vào phòng ' + code + ' (bạn là ' + troCoOX.my + ')');
         };
 
-        // ---------- Trò chơi mới ----------
         var DANH_SACH_TRO_CHOI = ['ttt', 'duck', 'mem', 'rps', 'guess', 'mole', 'snake'];
         function dungMoiTroChoi() {
             clearInterval(troChuot.t); troChuot.t = null;
@@ -1893,7 +1869,6 @@
             if (g === 'snake') ranVe();
         };
 
-        // Lật thẻ
         var troLatThe = { cards: [], open: [], lock: false, moves: 0, found: 0 };
         function theBatDau() {
             var em = ['🍎', '🍌', '🍇', '🍒', '🍓', '🍉'];
@@ -1926,7 +1901,6 @@
             }
         }
 
-        // Kéo búa bao
         var troKeoBuaBao = { w: 0, l: 0, d: 0 };
         function keoBuaBaoChoi(u) {
             var o = ['bua', 'bao', 'keo'], ic = { bua: '✊ Búa', bao: '✋ Bao', keo: '✌️ Kéo' }
@@ -1937,7 +1911,6 @@
             document.getElementById('rpsStat').textContent = 'Thắng ' + troKeoBuaBao.w + ' · Thua ' + troKeoBuaBao.l + ' · Hòa ' + troKeoBuaBao.d;
         }
 
-        // Đoán số
         var troDoanSo = { n: 0, left: 7, over: true };
         function doanSoMoi() {
             troDoanSo.n = 1 + Math.floor(Math.random() * 100); troDoanSo.left = 7; troDoanSo.over = false;
@@ -1955,7 +1928,6 @@
             inp.value = '';
         }
 
-        // Đập chuột
         var troChuot = { t: null, pos: -1, score: 0, ticks: 0 };
         function chuotVe() {
             var h = '';
@@ -1986,7 +1958,6 @@
             }, 650);
         }
 
-        // Rắn săn mồi
         var troRan = { t: null, d: [1, 0], nd: [1, 0], body: [], food: null, score: 0 };
         function ranVe() {
             var cv = document.getElementById('snakeCv'), c = cv.getContext('2d'), cs = getComputedStyle(document.body), C = 20;
@@ -2034,7 +2005,6 @@
             if (m) { e.preventDefault(); ranDoiHuong(m[0], m[1]); }
         });
 
-        // ---------- Cá nhân & kết bạn ----------
         function layBanBe() { try { return JSON.parse(localStorage.getItem('minispace_social') || '{}'); } catch (e) { return {}; } }
         function chuanHoaBanBe(o) { o.friends = o.friends || {}; o.reqs = o.reqs || []; return o; }
         function luuBanBe(o) { localStorage.setItem('minispace_social', JSON.stringify(o)); }
@@ -2151,7 +2121,6 @@
             luuBanBe(so); veCaNhan();
         }
 
-        // ---------- Nhắn tin ----------
         var dangNhanVoi = null, tinNhanDaXem = Date.now();
         function layTinNhan() { try { return JSON.parse(localStorage.getItem('minispace_dm') || '{}'); } catch (e) { return {}; } }
         function khoaTinNhan(a, b) { return [a, b].sort().join('|'); }
@@ -2160,7 +2129,7 @@
             var me = tenNguoiDungHienTai, fr = chuanHoaBanBe(layBanBe()).friends[me] || [], h = '';
             if (fr.indexOf(dangNhanVoi) < 0) dangNhanVoi = fr[0] || null;
             fr.forEach(function(f) {
-                h += '<button class="chip' + (f === dangNhanVoi ? ' active' : '') + '" onclick="dmWith=decodeURIComponent(\'' + maHoaTen(f) + '\');veTinNhan()">' + thoatHtml(f) + '</button>';
+                h += '<button class="chip' + (f === dangNhanVoi ? ' active' : '') + + '" onclick="dangNhanVoi=decodeURIComponent(\'' + maHoaTen(f) + '\');veTinNhan()">' + thoatHtml(f) + '</button>';
             });
             document.getElementById('dmFriends').innerHTML = h;
             document.getElementById('dmEmpty').textContent = fr.length ? '' : 'Bạn chưa có bạn bè nào. Vào mục Cá nhân để kết bạn nhé!';
@@ -2277,7 +2246,6 @@
 
 
 
-        // Dữ liệu dùng chung được lưu trong Firestore; mật khẩu chỉ do Firebase Auth quản lý.
         var sachCloud = [], toanCauCloud = [], danhSachNguoiDungCloud = [];
         var ngungTheoDoiBai = null, ngungTheoDoiSach = null, ngungTheoDoiChat = null, ngungTheoDoiNguoiDung = null;
         var boTheoDoiTuongTac = {};
@@ -2805,10 +2773,12 @@
                         '<button class="mini-del" onclick="ghimBaiCloud(\'' + id + '\')" title="Ghim bài">' + (post.pinned ? 'Bỏ ghim' : 'Ghim') + '</button>' +
                         '<button class="delete-btn" onclick="xoaBaiCloud(\'' + id + '\')" title="Xóa bài">✖</button></div>'
                     : '';
+                var url = !post.uid ? '' : (post.uid === window.auth.currentUser.uid ? avatarDataUrl : layAvatar(post.uid));
                 var image = post.image ? '<img src="' + thoatHtmlCloud(post.image) + '" class="post-image" alt="" onerror="this.style.display=\'none\'">' : '';
                 return '<article class="post-card" id="post-' + id + '">' +
-                    '<div class="post-header"><div class="author-info"><div class="avatar">' +
-                    thoatHtmlCloud((post.author || 'A').charAt(0).toUpperCase()) + '</div><div><div class="author-name">' +
+                    '<div class="post-header"><div class="author-info"><div class="avatar" data-uid="' + thoatHtml(post.uid || '') + '"' +
+                    (url ? ' style="background:url(' + url + ') center/cover"' : '') + '>' +
+                    (url ? '' : thoatHtmlCloud((post.author || 'A').charAt(0).toUpperCase())) + '</div><div><div class="author-name">' +
                     thoatHtmlCloud(post.author) + (post.pinned ? ' 📌' : '') + '</div><div class="post-time">' +
                     thoatHtmlCloud(post.time) + '</div></div></div>' + controls + '</div>' +
                     '<div class="post-content">' + thoatHtmlCloud(post.content) + '</div>' + image +
@@ -3142,7 +3112,6 @@
             if (tabName === 'books') veDanhSachSach();
             if (tabName === 'global') veToanCau();
         };
-        // Định nghĩa hàm cập nhật quyền giao diện cho admin/thành viên
         function capNhatQuyenGiaoDien() {
             var isFeed = ['all', 'anonymous', 'saved'].indexOf(mucHienTai) >= 0;
             var canPost = isFeed && laAdmin();
@@ -3156,6 +3125,140 @@
             if (btnPost) btnPost.disabled = !laAdmin();
             if (anonCheck) anonCheck.disabled = true;
         }
+        var avatarCache = {}, badgeCache = {}, ngungBadge = null;
+        var BADGES = { admin: ['👑', 'Quản trị viên'], vip: ['💎', 'VIP'], star: ['⭐', 'Thành tựu'] };
+
+        function layAvatar(uid) {
+            if (uid in avatarCache) return avatarCache[uid];
+            avatarCache[uid] = '';
+            window.FirestoreSDK.getDoc(window.FirestoreSDK.doc(window.db, 'avatars', uid)).then(function(d) {
+                var url = d.exists() ? String(d.data().dataUrl || '') : '';
+                avatarCache[uid] = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(url) ? url : '';
+                if (dangHien('panel-global')) veToanCau();
+                if (dangHien('panel-dm')) veTinNhan();
+                veBaiDang();
+            }).catch(function() {});
+            return '';
+        }
+
+        function avatarHtml(uid, name, big) {
+            var url = uid === window.auth.currentUser.uid ? avatarDataUrl : layAvatar(uid);
+            return '<span class="mini-av' + (big ? ' big' : '') + '"' + (big ? '' : ' data-uid="' + thoatHtml(uid) + '"') +
+                (url ? ' style="background-image:url(' + url + ')"' : '') + '>' +
+                (url ? '' : thoatHtml((name || '?')[0].toUpperCase())) + '</span>';
+        }
+
+        function badgeIcon(uid) {
+            var b = badgeCache[uid];
+            return b && BADGES[b] ? '<span title="' + BADGES[b][1] + '">' + BADGES[b][0] + '</span> ' : '';
+        }
+
+
+        function moHoSo(uid) {
+        var u = danhSachNguoiDungCloud.find(function(x) { return x.uid === uid; }) || {};
+        var name = u.displayName || 'Thành viên', b = badgeCache[uid];
+        var h = avatarHtml(uid, name, true) +
+            '<h3 style="margin:0">' + badgeIcon(uid) + thoatHtml(name) + '</h3>' +
+            '<div style="margin:6px 0">' + statusBadgeHtml(uid) + '</div>' +
+            '<p class="note">' + (u.bio ? thoatHtml(u.bio) : 'Chưa có giới thiệu.') + '</p>' +
+            '<div class="note">Tham gia: ' + (u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('vi-VN') : '—') + '</div>';
+        if (laAdmin()) {
+            h += '<div style="margin-top:12px">';
+            Object.keys(BADGES).forEach(function(k) {
+                h += '<button class="chip' + (b === k ? ' active' : '') + '" onclick="datHuyHieu(\'' + thoatHtml(uid) + '\',\'' + k + '\')">' + BADGES[k][0] + ' ' + BADGES[k][1] + '</button> ';
+            });
+            h += '<button class="chip" onclick="datHuyHieu(\'' + thoatHtml(uid) + '\',\'\')">Gỡ</button></div>';
+        }
+        document.getElementById('hoSoNoiDung').innerHTML = h;
+        document.getElementById('hoSoModal').style.display = 'flex';
+    }
+
+    async function datHuyHieu(uid, type) {
+        var sdk = window.FirestoreSDK, ref = sdk.doc(window.db, 'badges', uid);
+        try {
+            if (type) await sdk.setDoc(ref, { uid: uid, type: type, updatedAt: Date.now() });
+            else await sdk.deleteDoc(ref);
+            hienThongBao('Đã cập nhật huy hiệu.');
+            moHoSo(uid);
+        } catch (e) { hienLoiFirebase(e); }
+    }
+
+    document.addEventListener('click', function(e) {
+        var t = e.target.closest('[data-uid]');
+        if (t) moHoSo(t.getAttribute('data-uid'));
+    });
+
+
+    var _huyBadge = huyTheoDoiCloud;
+    huyTheoDoiCloud = function() { _huyBadge(); if (ngungBadge) { ngungBadge(); ngungBadge = null; } };
+
+    var _batBadge = startCloudSubscriptions;
+    startCloudSubscriptions = function() {
+        _batBadge();
+        var sdk = window.FirestoreSDK;
+        ngungBadge = sdk.onSnapshot(sdk.collection(window.db, 'badges'), function(s) {
+            badgeCache = {};
+            s.docs.forEach(function(d) { badgeCache[d.id] = d.data().type; });
+            if (dangHien('panel-global')) veToanCau();
+        }, function(e) { console.error('badges:', e); });
+    };
+
+
+        function ngayTinNhan(ts, state) {
+        var day = new Date(ts).toLocaleDateString('vi-VN');
+        if (day === state.day) return '';
+        state.day = day;
+        return '<div class="day-sep">' + day + '</div>';
+    }
+
+    veToanCau = function() {
+        var box = document.getElementById('toanCauHop'), me = window.auth.currentUser.uid, st = { day: '' };
+        box.innerHTML = toanCauCloud.map(function(m) {
+            var mine = m.uid === me, b = badgeCache[m.uid];
+            return ngayTinNhan(m.ts, st) +
+                '<div class="row ' + (mine ? 'me' : 'bot') + '">' + (mine ? '' : avatarHtml(m.uid, m.author)) +
+                '<div class="msg ' + (mine ? 'me' : 'bot') + (b ? ' vip vip-' + b : '') + '">' +
+                '<small><b>' + badgeIcon(m.uid) + thoatHtmlCloud(m.author) + '</b></small>' +
+                thoatHtmlCloud(m.text) + '<small>' + gioPhut(m.ts) + '</small></div>' +
+                (mine ? avatarHtml(m.uid, m.author) : '') + '</div>';
+        }).join('') || '<p class="note">Chưa có tin nhắn. Hãy bắt đầu trò chuyện!</p>';
+        box.scrollTop = box.scrollHeight;
+    };
+
+
+    var _veTinGoc = veTinNhan;
+    veTinNhan = function() {
+        _veTinGoc();
+        if (!dangNhanVoi) return;
+        var me = tenNguoiDungHienTai, myUid = window.auth.currentUser.uid, st = { day: '' };
+        var other = danhSachNguoiDungCloud.find(function(x) { return x.displayName === dangNhanVoi; });
+        var ms = layTinNhan()[khoaTinNhan(me, dangNhanVoi)] || [], box = document.getElementById('dmBox');
+        box.innerHTML = ms.map(function(m) {
+            var mine = m.f === me;
+            var av = mine ? avatarHtml(myUid, me) : (other ? avatarHtml(other.uid, other.displayName) : '<span class="mini-av">' + thoatHtml((dangNhanVoi[0] || '?').toUpperCase()) + '</span>');
+            return ngayTinNhan(m.ts, st) + '<div class="row ' + (mine ? 'me' : 'bot') + '">' + (mine ? '' : av) +
+                '<div class="msg ' + (mine ? 'me' : 'bot') + '">' + thoatHtml(m.t) + '<small>' + gioPhut(m.ts) + '</small></div>' +
+                (mine ? av : '') + '</div>';
+        }).join('');
+        box.scrollTop = box.scrollHeight;
+    };
+
+    var _veNguoiGoc = veNguoiDung;
+    veNguoiDung = function() {
+        _veNguoiGoc();
+        document.querySelectorAll('#mePeople .frow strong').forEach(function(s) {
+            var u = danhSachNguoiDungCloud.find(function(x) { return x.displayName === s.textContent; });
+            if (u) s.setAttribute('data-uid', u.uid);
+        });
+    };
+
+
+
+
+
+
+
+
         if (window.auth && window.auth.currentUser && window.auth.currentUser.emailVerified) {
             window.handleFirebaseAuthState(window.auth.currentUser);
         }
