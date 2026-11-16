@@ -3262,6 +3262,30 @@
         if (window.auth && window.auth.currentUser && window.auth.currentUser.emailVerified) {
             window.handleFirebaseAuthState(window.auth.currentUser);
         }
+
+
+        function veThuVienSach() {
+            var container = document.getElementById('bookListContainer');
+            if (!container) return;
+
+            window.FirestoreSDK.getDocs(window.FirestoreSDK.collection(window.db, 'books')).then(function(snapshot) {
+                var html = '';
+                snapshot.forEach(function(doc) {
+                    var b = doc.data();
+                    html += '<div class="book-card" style="background:#fff; padding:15px; margin-bottom:10px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">' +
+                        '<h3>' + thoatHtml(b.title) + '</h3>' +
+                        '<p><i>Tác giả: ' + thoatHtml(b.author) + '</i></p>' +
+                        '<button class="btn" onclick="docSach(\'' + doc.id + '\')">Đọc sách</button>' +
+                        '</div>';
+                });
+                container.innerHTML = html || '<p>Chưa có cuốn sách nào trong thư viện.</p>';
+            }).catch(function(err) {
+                console.error("Lỗi tải sách: ", err);
+            });
+        }
+
+
+
     </script>
 </body>
 </html>
